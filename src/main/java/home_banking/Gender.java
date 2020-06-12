@@ -1,5 +1,5 @@
 package home_banking;
 
-public enum Gender {
-
+public enum Gender{
+	MALE, FEMALE, UNBINARY;
 }
