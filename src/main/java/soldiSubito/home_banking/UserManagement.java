@@ -2,8 +2,12 @@ package soldiSubito.home_banking;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
@@ -31,20 +35,22 @@ public class UserManagement {
 			if (surname.isBlank()) throw new IllegalArgumentException("Il cognome non può essere vuoto.");
 			if (birthPlace.isBlank()) throw new IllegalArgumentException("Il luogo di nascita non può essere vuoto.");
 			if (livingPlace.isBlank()) throw new IllegalArgumentException("La residenza non può essere vuota.");
-			if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La data di nascita non può essere nel futuro.");
+			//if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La data di nascita non può essere nel futuro.");
 			if (!isValidFiscalCode(cf)) throw new IllegalArgumentException("Il codice fiscale non è corretto");
 			if (!isValidNumeroFisso(phoneNumber.trim()) ||
 					!isValidNumeroMobile(phoneNumber.trim())) throw new IllegalArgumentException("Il numero di telefono non è corretto");
 			if (!isValidMail(eMail)) throw new IllegalArgumentException("L'email non è corretta");
 			//forse controllo identity Id
 			int generatedId = saveGenerics(livingPlace, eMail, phoneNumber, birthPlace);
-			saveUser(String[] {name, surname, cf, "token", dateOfBirth, generatedId});
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");  
+			String strDate = dateFormat.format(dateOfBirth);  
+			saveUser(new String[] {name, surname, cf, "token", strDate, Integer.toString(generatedId)});
 		}
 
 		
 		
 		
-	}
+	
 	public void modifyPhoneNumber() {
 		
 	}
@@ -83,8 +89,8 @@ public class UserManagement {
 			preparedStatement.setString(2, em);
 			preparedStatement.setString(3, pn);
 			preparedStatement.setString(4, bp);
-			generatedKey = preparedStatement.execute();
-		    ResultSet rs = stmt.getGeneratedKeys();
+			generatedKey = preparedStatement.executeUpdate();
+		    ResultSet rs = preparedStatement.getGeneratedKeys();
 		    rs.next();
 		    generatedKey = rs.getInt(1);
 		} catch (SQLException e) {
@@ -96,7 +102,7 @@ public class UserManagement {
 		}
 		return generatedKey;
 	}
-	private void saveUser(String[] data, int id) {
+	private static void saveUser(String[] data) {
 		Connection myConnection = DBConnection.connect();
 		
 		String myQuery = "INSERT INTO user(name, surname, fiscal_code, token, birth_date, contact, create_at, update_at)" + 
