@@ -1,0 +1,33 @@
+create table HB_USER
+     (
+       ID INT(20) AUTO_INCREMENT PRIMARY KEY,
+       NAME VARCHAR(20),
+       SURNAME VARCHAR(20),
+       FISCAL_CODE VARCHAR(20),
+       TOKEN VARCHAR(40),
+       BIRTH_DATE DATE,
+       CONTACT INT,
+       CREATE_AT DATE,
+       UPDATED_AT DATE,
+       CD_CONTO INT 
+      );
+      
+  create table HB_ACTIVITY
+     (
+       ID INT(20) AUTO_INCREMENT PRIMARY KEY,
+       ID_CONTO INT ,
+       TOTAL DOUBLE,
+       RECIPIENT VARCHAR(20),
+       DESCRIPTION VARCHAR(20),
+       OPERATION_TYPE VARCHAR(40),
+       CREATE_AT DATE,
+       VALIDATED_AT DATE,
+       STATUS VARCHAR(20),
+       CURRENCY VARCHAR(20)
+      );
+      
+     
+   ALTER TABLE sql7347791.HB_USER
+	ADD FOREIGN KEY (HB_USER.CONTACT) REFERENCES hb_generics(hb_generics.id);
+
+     
