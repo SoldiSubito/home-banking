@@ -1,6 +1,7 @@
 package soldiSubito.home_banking;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,8 +10,8 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Scanner;
 
 public class UserManagement {
@@ -28,7 +29,7 @@ public class UserManagement {
 		String cf,
 		String phoneNumber,
 		String eMail,
-		String identityId) {
+		String identityId) throws SQLException {
 			long age = ChronoUnit.YEARS.between(dateOfBirth, LocalDate.now());
 			if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni per creare un account.");
 			if (name.isBlank()) throw new IllegalArgumentException("Il nome non può essere vuoto.");
@@ -42,6 +43,8 @@ public class UserManagement {
 			if (!isValidMail(eMail)) throw new IllegalArgumentException("L'email non è corretta");
 			//forse controllo identity Id
 			int generatedId = saveGenerics(livingPlace, eMail, phoneNumber, birthPlace);
+			
+			//usare try catch oppure aggiungere throw SQLException
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");  
 			String strDate = dateFormat.format(dateOfBirth);  
 			saveUser(new String[] {name, surname, cf, "token", strDate, Integer.toString(generatedId)});
@@ -79,7 +82,7 @@ public class UserManagement {
 		String regex = "^[0-9]{10}$";
 		return numero.matches(regex);
 	}
-	private static int saveGenerics(String lp, String em, String pn, String bp) {
+	private static int saveGenerics(String lp, String em, String pn, String bp) throws SQLException {
 		Connection myConnection = DBConnection.connect();
 		String myQuery = "INSERT INTO generics(livingPlace, eMail, phoneNumber, birthPlace) VALUES (?,?,?,?)";
 		PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery, Statement.RETURN_GENERATED_KEYS);
@@ -93,7 +96,7 @@ public class UserManagement {
 		    ResultSet rs = preparedStatement.getGeneratedKeys();
 		    rs.next();
 		    generatedKey = rs.getInt(1);
-		} catch (SQLException e) {
+		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}finally {
@@ -102,7 +105,7 @@ public class UserManagement {
 		}
 		return generatedKey;
 	}
-	private static void saveUser(String[] data) {
+	private static void saveUser(String[] data) throws SQLException {
 		Connection myConnection = DBConnection.connect();
 		
 		String myQuery = "INSERT INTO user(name, surname, fiscal_code, token, birth_date, contact, create_at, update_at)" + 
@@ -113,13 +116,14 @@ public class UserManagement {
 			preparedStatement.setString(2, data[1]);
 			preparedStatement.setString(3, data[2]);
 			preparedStatement.setString(4, data[3]);
-			preparedStatement.setDate(5, data[4]);
+			Date date=Date.valueOf(data[4]); 
+			preparedStatement.setDate(5, date);
 			preparedStatement.setInt(6, Integer.parseInt(data[5]));
-			preparedStatement.setTimestamp(7, Timestamp.from(LocalDate.now()));
-			preparedStatement.setTimestamp(8, Timestamp.from(LocalDate.now()));
+			preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
+			preparedStatement.setTimestamp(8,Timestamp.valueOf(LocalDateTime.now()));
 			//preparedStatement.setInt(9, Integer.parseInt(data[6]));
 			preparedStatement.execute();
-		} catch (SQLException e) {
+		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}finally {

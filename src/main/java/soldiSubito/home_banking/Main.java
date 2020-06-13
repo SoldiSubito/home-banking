@@ -7,6 +7,6 @@ public class Main {
 		Scanner scanner = new Scanner(System.in);
 		String inputString = scanner.nextLine();
 		
-		UserManagement.register();
+		//UserManagement.register();
 	}
 }
