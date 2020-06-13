@@ -1,7 +1,5 @@
 package soldiSubito.home_banking;
 
-import java.util.Date;
-
 public class User {
 	private String name;
 	private String surname;
