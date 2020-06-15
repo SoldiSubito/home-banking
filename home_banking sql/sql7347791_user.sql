@@ -27,7 +27,7 @@ CREATE TABLE `user` (
   `name` varchar(20) DEFAULT NULL,
   `surname` varchar(20) DEFAULT NULL,
   `fiscal_code` varchar(20) DEFAULT NULL,
-  `token` varchar(40) DEFAULT NULL,
+  `password` varchar(40) DEFAULT NULL,
   `birth_date` date DEFAULT NULL,
   `contact` int(11) DEFAULT NULL,
   `create_at` date DEFAULT NULL,
@@ -36,8 +36,18 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `HB_USER_UN` (`contact`),
   KEY `CD_CONTO_idx` (`id_conto`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `user`
+--
+
+LOCK TABLES `user` WRITE;
+/*!40000 ALTER TABLE `user` DISABLE KEYS */;
+INSERT INTO `user` VALUES (1,'Visar','Gjergo','NFFYMR95R26B354O','token','1850-10-17',1,'2020-06-13','2020-06-13',NULL),(2,'Lorenzo','Ciuffa','NFFSAD95R24B354O','token','1850-10-17',3,'2020-06-13','2020-06-13',NULL);
+/*!40000 ALTER TABLE `user` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -48,4 +58,4 @@ CREATE TABLE `user` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-13 16:21:01
+-- Dump completed on 2020-06-15 16:30:02

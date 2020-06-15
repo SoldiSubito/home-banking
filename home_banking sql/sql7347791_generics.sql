@@ -28,10 +28,19 @@ CREATE TABLE `generics` (
   `email` varchar(250) NOT NULL,
   `phone_number` varchar(45) NOT NULL,
   `birth_place` varchar(250) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `phoneNumber_UNIQUE` (`phone_number`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `generics`
+--
+
+LOCK TABLES `generics` WRITE;
+/*!40000 ALTER TABLE `generics` DISABLE KEYS */;
+INSERT INTO `generics` VALUES (1,'Roma','CICCIO@PASTICCIO.COM','345567894','Albania'),(3,'Toronto','CICASCCIO@PASTADSICCIO.COM','345567894','Cambogia');
+/*!40000 ALTER TABLE `generics` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -42,4 +51,4 @@ CREATE TABLE `generics` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-06-13 16:21:04
+-- Dump completed on 2020-06-15 16:30:04
