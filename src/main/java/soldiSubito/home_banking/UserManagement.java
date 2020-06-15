@@ -31,7 +31,7 @@ public class UserManagement {
 			if (surname.isBlank()) throw new IllegalArgumentException("Il cognome non può essere vuoto.");
 			if (birthPlace.isBlank()) throw new IllegalArgumentException("Il luogo di nascita non può essere vuoto.");
 			if (livingPlace.isBlank()) throw new IllegalArgumentException("La residenza non può essere vuota.");
-			if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La data di nascita non può essere nel futuro.");
+			if (LocalDate.now().isBefore(dateOfBirth)) throw new IllegalArgumentException("La data di nascita non può essere nel futuro.");
 			if (!isValidFiscalCode(cf)) throw new IllegalArgumentException("Il codice fiscale non è corretto");
 			if (!isValidNumeroFisso(phoneNumber.trim()) ||
 					!isValidNumeroMobile(phoneNumber.trim())) throw new IllegalArgumentException("Il numero di telefono non è corretto");
