@@ -130,6 +130,27 @@ public class UserManagement {
 		}
 		return generatedKey;
 	}
+	
+	public static void deleteUserById(int id ) {
+		//myQuery non funziona
+		String myQuery = "delete from generics where id = (select contact from user where user.id = "+id+")";
+		String myQuery2 = "delete from user where user.id = "+id;
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
+				PreparedStatement preparedStatement2 = myConnection.prepareStatement(myQuery2);
+				){
+			preparedStatement.execute();
+			preparedStatement2.execute();
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("VendorError: " + e.getErrorCode());
+			e.printStackTrace();
+		}
+			
+	}
+	
+	
+	
 	private static void saveUser(String[] data, Date dateOfBirth) {
 		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at)" + 
 		" VALUES (?,?,?,?,?,?,?,?)";
