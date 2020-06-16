@@ -21,14 +21,9 @@ public class Main {
 		String phoneNumber,
 		String eMail,
 		String identityId*/
-		/*UserManagement.register("Lorenzo","Ciuffa",dateOfBirth, Gender.FEMALE,
-				"Cambogia","Toronto","NFFSAD95R24B354O","345567894","cicasccio@pastadsiccio.com".toUpperCase(),"CiCCio", "Password");*/
+		UserManagement.register("Joseph","Stalin",dateOfBirth, Gender.MALE,
+				"Moscow","Moscow","ADFSAD95R24B354O","345567894","josephino@gmail.communism".toUpperCase(),"CiCCio", "Password");
 		//UserManagement.login("NFFSAD95R24B354O", "token");
 		//Conto.createConto("2", 720.0, "IT123546", "DISPONIBILE", 0, Date.valueOf(LocalDate.now()));
-		Conto.findByIban("IT666666");
-		Conto.findByIban("IT123546");
-		Conto.bonifico("IT123546", "IT666666", 100);
-		Conto.findByIban("IT666666");
-		Conto.findByIban("IT123546");
 	}
 }
