@@ -27,7 +27,7 @@ public class Main {
 		//Conto.createConto("2", 720.0, "IT123546", "DISPONIBILE", 0, Date.valueOf(LocalDate.now()));
 		Conto.findByIban("IT666666");
 		Conto.findByIban("IT123546");
-		Conto.bonifico("IT123546", "IT666666", 200);
+		Conto.bonifico("IT123546", "IT666666", 100);
 		Conto.findByIban("IT666666");
 		Conto.findByIban("IT123546");
 	}

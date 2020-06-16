@@ -62,11 +62,9 @@ public class Conto {
 		if(soldi <= 0) throw new IllegalArgumentException("Il bonifico non può essere inferiore od uguale a 0€");
 		if(ibanPagante.contentEquals(ibanRicevente)) return;
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement1 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");
-				PreparedStatement preparedStatement2 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");
+				PreparedStatement preparedStatement1 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = '" + ibanPagante + "'");
+				PreparedStatement preparedStatement2 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = '" + ibanRicevente + "'");
 				PreparedStatement preparedStatement3 = myConnection.prepareStatement("UPDATE conto SET total_amount = total_amount - ? WHERE iban = ?");) {
-			preparedStatement1.setString(1, ibanPagante);
-			preparedStatement2.setString(1, ibanRicevente);
 			ResultSet conto1 = preparedStatement1.executeQuery();
 			ResultSet conto2 = preparedStatement2.executeQuery();
 			if (!conto1.next()) throw new IllegalArgumentException("L'IBAN del mandante non è corretto");
