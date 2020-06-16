@@ -35,6 +35,7 @@ public class UserManagement {
 		String phoneNumber,
 		String eMail,
 		String identityId) throws SQLException {
+		
 		//	long age = ChronoUnit.YEARS.between(dateOfBirth, Date.valueOf(date));
 		//	if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni per creare un account.");
 			if (name.isBlank()) throw new IllegalArgumentException("Il nome non può essere vuoto.");
@@ -62,6 +63,7 @@ public class UserManagement {
 	public void modifyPhoneNumber() {
 		
 	}
+	
 	public void identityId() {
 		
 	}
