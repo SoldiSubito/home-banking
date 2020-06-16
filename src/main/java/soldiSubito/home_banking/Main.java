@@ -25,10 +25,14 @@ public class Main {
 				"Cambogia","Toronto","NFFSAD95R24B354O","345567894","cicasccio@pastadsiccio.com".toUpperCase(),"CiCCio", "Password");*/
 		//UserManagement.login("NFFSAD95R24B354O", "token");
 		//Conto.createConto("2", 720.0, "IT123546", "DISPONIBILE", 0, Date.valueOf(LocalDate.now()));
-		Conto.findByIban("IT666666");
-		Conto.findByIban("IT123546");
-		Conto.bonifico("IT123546", "IT666666", 100);
-		Conto.findByIban("IT666666");
-		Conto.findByIban("IT123546");
+//		Conto.findByIban("IT666666");
+//		Conto.findByIban("IT123546");
+//		Conto.bonifico("IT123546", "IT666666", 100);
+//		Conto.findByIban("IT666666");
+//		Conto.findByIban("IT123546");
+		UserManagement.deleteUserById(4);
+		
+		
+		
 	}
 }
