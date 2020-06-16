@@ -34,12 +34,12 @@ public class Conto {
 			ResultSet rs = preparedStatement.executeQuery();
 			while(rs.next()) {
 				StringBuilder sb = new StringBuilder();
-				sb.append(rs.getString("OWNER") + "\n");
-				sb.append(rs.getDouble("TOTAL_AMOUNT") + "\n");
-				sb.append(rs.getString("IBAN") + "\n");
-				sb.append(rs.getString("STATUS") + "\n");
-				sb.append(rs.getInt("COUNT_TYPE") + "\n");
-				sb.append(rs.getDate("CREATED_AT") + "\n");
+				sb.append("OWNER: " + rs.getString("OWNER") + "\n");
+				sb.append("TOTAL_AMOUNT: " + rs.getDouble("TOTAL_AMOUNT") + "\n");
+				sb.append("IBAN: " + rs.getString("IBAN") + "\n");
+				sb.append("STATUS: " + rs.getString("STATUS") + "\n");
+				sb.append("COUNT_TYPE: " + rs.getInt("COUNT_TYPE") + "\n");
+				sb.append("CREATED_AT: " + rs.getDate("CREATED_AT") + "\n");
 				System.out.println(sb.toString());
 			}
 			
@@ -53,5 +53,34 @@ public class Conto {
 	}
 	public static void findByOwner(String owner) {
 		find("SELECT * FROM conto WHERE owner LIKE " + "'%" + owner + "%'");
+	}
+	public static void findByIban(String iban) {
+		find("SELECT * FROM conto WHERE iban = '" + iban + "'");
+	}
+
+	public static void bonifico(String ibanPagante, String ibanRicevente, double soldi) {
+		if(soldi <= 0) throw new IllegalArgumentException("Il bonifico non può essere inferiore od uguale a 0€");
+		if(ibanPagante.contentEquals(ibanRicevente)) return;
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement1 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");
+				PreparedStatement preparedStatement2 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");
+				PreparedStatement preparedStatement3 = myConnection.prepareStatement("UPDATE conto SET total_amount = total_amount - ? WHERE iban = ?");) {
+			preparedStatement1.setString(1, ibanPagante);
+			preparedStatement2.setString(1, ibanRicevente);
+			ResultSet conto1 = preparedStatement1.executeQuery();
+			ResultSet conto2 = preparedStatement2.executeQuery();
+			if (!conto1.next()) throw new IllegalArgumentException("L'IBAN del mandante non è corretto");
+			if (!conto2.next()) throw new IllegalArgumentException("L'IBAN del ricevente non è corretto");
+			if (conto1.getDouble("TOTAL_AMOUNT") < soldi) throw new IllegalArgumentException("Non ci sono abbastanza soldi sul conto per questa operazione");
+			preparedStatement3.setDouble(1, soldi);
+			preparedStatement3.setString(2, ibanPagante);
+			preparedStatement3.execute();
+
+			preparedStatement3.setDouble(1, -soldi);
+			preparedStatement3.setString(2, ibanRicevente);
+			preparedStatement3.execute();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
