@@ -18,7 +18,30 @@ public class UserManagement {
 
 	//POST
 	public static void login(String cf, String password) {
-		//Query SELECT * FROM users WHERE cf = cf;
+		String myQuery = "SELECT * FROM user WHERE fiscal_code = ? AND password = ?";
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
+			preparedStatement.setString(1, cf);
+			preparedStatement.setString(2, password);
+			ResultSet rs = preparedStatement.executeQuery();
+			if(rs.next()) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(rs.getString("NAME") + "\n");
+				sb.append(rs.getString("SURNAME") + "\n");
+				sb.append(rs.getString("FISCAL_CODE") + "\n");
+				sb.append(rs.getString("PASSWORD") + "\n");
+				sb.append(rs.getDate("BIRTH_DATE") + "\n");
+				sb.append(rs.getInt("CONTACT") + "\n");
+				sb.append(rs.getInt("ID_CONTO") + "\n");
+				System.out.println(sb.toString());
+			}else {
+				System.out.println("Nome utente o password non corrispondono.");
+			}
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		//risposta tutti i parametri per identificare l'utente (TOKEN NECESSARIO)
 	}
@@ -34,8 +57,8 @@ public class UserManagement {
 		String cf,
 		String phoneNumber,
 		String eMail,
-		String identityId) throws SQLException {
-		
+		String identityId,
+		String password) {
 		//	long age = ChronoUnit.YEARS.between(dateOfBirth, Date.valueOf(date));
 		//	if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni per creare un account.");
 			if (name.isBlank()) throw new IllegalArgumentException("Il nome non può essere vuoto.");
@@ -49,11 +72,9 @@ public class UserManagement {
 			if (!isValidMail(eMail)) throw new IllegalArgumentException("L'email non è corretta");
 			//forse controllo identity Id
 			int generatedId = saveGenerics(livingPlace, eMail, phoneNumber, birthPlace);
-			
-			//usare try catch oppure aggiungere throw SQLException
 		//	DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");  
-		//	String strDate = dateFormat.format(dateOfBirth);  
-			saveUser(new String[] {name, surname, cf, "token", Integer.toString(generatedId)}, dateOfBirth);
+		//	String strDate = dateFormat.format(dateOfBirth)
+			saveUser(new String[] {name, surname, cf, password, Integer.toString(generatedId)}, dateOfBirth);
 		}
 
 	
@@ -63,7 +84,6 @@ public class UserManagement {
 	public void modifyPhoneNumber() {
 		
 	}
-	
 	public void identityId() {
 		
 	}
@@ -89,12 +109,13 @@ public class UserManagement {
 		String regex = "^[0-9]{10}$";
 		return numero.matches(regex);
 	}
-	private static int saveGenerics(String lp, String em, String pn, String bp) throws SQLException {
-		Connection myConnection = DBConnection.connect();
+	private static int saveGenerics(String lp, String em, String pn, String bp) {
+		
 		String myQuery = "INSERT INTO generics(living_place, email, phone_number, birth_place) VALUES (?,?,?,?)";
-		PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery, Statement.RETURN_GENERATED_KEYS);
+		
 		int generatedKey = -1;
-		try {
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery, Statement.RETURN_GENERATED_KEYS);){
 			preparedStatement.setString(1, lp);
 			preparedStatement.setString(2, em);
 			preparedStatement.setString(3, pn);
@@ -106,19 +127,15 @@ public class UserManagement {
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("VendorError: " + ex.getErrorCode());
-		}finally {
-			preparedStatement.close();
-			myConnection.close();
 		}
 		return generatedKey;
 	}
-	private static void saveUser(String[] data, Date dateOfBirth) throws SQLException {
-		Connection myConnection = DBConnection.connect();
-		
-		String myQuery = "INSERT INTO user(name, surname, fiscal_code, token, birth_date, contact, create_at, update_at)" + 
+	private static void saveUser(String[] data, Date dateOfBirth) {
+		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at)" + 
 		" VALUES (?,?,?,?,?,?,?,?)";
-		PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
-		try {
+		
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);){
 			preparedStatement.setString(1, data[0]);
 			preparedStatement.setString(2, data[1]);
 			preparedStatement.setString(3, data[2]);
@@ -134,9 +151,6 @@ public class UserManagement {
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("VendorError: " + ex.getErrorCode());
-		}finally {
-			preparedStatement.close();
-			myConnection.close();
 		}
 	}
 }
