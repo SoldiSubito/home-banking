@@ -32,7 +32,6 @@ public class UserManagement {
 				sb.append(rs.getString("PASSWORD") + "\n");
 				sb.append(rs.getDate("BIRTH_DATE") + "\n");
 				sb.append(rs.getInt("CONTACT") + "\n");
-				sb.append(rs.getInt("ID_CONTO") + "\n");
 				System.out.println(sb.toString());
 			}else {
 				System.out.println("Nome utente o password non corrispondono.");
@@ -75,6 +74,7 @@ public class UserManagement {
 		//	DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");  
 		//	String strDate = dateFormat.format(dateOfBirth)
 			saveUser(new String[] {name, surname, cf, password, Integer.toString(generatedId)}, dateOfBirth);
+			System.out.println("Registered User " + generatedId + " successfully");
 		}
 
 	
@@ -133,7 +133,7 @@ public class UserManagement {
 	
 	public static void deleteUserById(int id ) {
 		//myQuery non funziona
-		String myQuery = "delete from generics where id = (select contact from user where user.id = "+id+")";
+		String myQuery = "delete from generics where id = (select contact from user where user.id = "+id+");";
 		String myQuery2 = "delete from user where user.id = "+id;
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
@@ -141,6 +141,7 @@ public class UserManagement {
 				){
 			preparedStatement.execute();
 			preparedStatement2.execute();
+			System.out.println("Deleted User " + id + " successfully");
 		} catch (SQLException e) {
 			System.out.println("SQLException: " + e.getMessage());
 			System.out.println("VendorError: " + e.getErrorCode());

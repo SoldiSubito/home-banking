@@ -10,7 +10,7 @@ public class Main {
 		/*Scanner scanner = new Scanner(System.in);
 		String inputString = scanner.nextLine();
 		*/
-		Date dateOfBirth = Date.valueOf(LocalDate.of(1850,10,17));
+		Date dateOfBirth = Date.valueOf(LocalDate.of(1925,05,06));
 		/*String name,
 		String surname,
 		LocalDate dateOfBirth,
@@ -21,8 +21,8 @@ public class Main {
 		String phoneNumber,
 		String eMail,
 		String identityId*/
-		/*UserManagement.register("Lorenzo","Ciuffa",dateOfBirth, Gender.FEMALE,
-				"Cambogia","Toronto","NFFSAD95R24B354O","345567894","cicasccio@pastadsiccio.com".toUpperCase(),"CiCCio", "Password");*/
+		//UserManagement.register("Irene","Carfì",dateOfBirth, Gender.FEMALE,
+		//		"Boh, penso al sud","Stanford","CRFIRN95E40E123a".toUpperCase(),"342267893","something@something.com".toUpperCase(), "Irenz", "ASmartPassword");
 		//UserManagement.login("NFFSAD95R24B354O", "token");
 		//Conto.createConto("2", 720.0, "IT123546", "DISPONIBILE", 0, Date.valueOf(LocalDate.now()));
 //		Conto.findByIban("IT666666");
@@ -30,9 +30,8 @@ public class Main {
 //		Conto.bonifico("IT123546", "IT666666", 100);
 //		Conto.findByIban("IT666666");
 //		Conto.findByIban("IT123546");
-		UserManagement.deleteUserById(4);
-		
-		
-		
+//		Conto.findById(1);
+		Conto.findByOwner("1");
+		//UserManagement.deleteUserById(7);
 	}
 }
