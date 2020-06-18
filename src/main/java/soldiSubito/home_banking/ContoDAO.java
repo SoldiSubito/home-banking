@@ -4,10 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ContoDAO {
 
-	public static void save(Conto conto/*String owner, double totalAmount, String iban, String status, int tipoConto, Date dateCreazione*/) {
+	public static void save(Conto conto) {
 			String myQuery = "INSERT INTO conto(owner, total_amount, iban, status, count_type, created_at) VALUES (?,?,?,?,?,?)";
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);){
@@ -24,55 +26,53 @@ public class ContoDAO {
 		}
 	}
 
-	public static void findById(int id) {
+	public static Conto findById(int id) {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE id = ?");) {
 			preparedStatement.setInt(1, id);
 			ResultSet rs = preparedStatement.executeQuery();
-			printUtenteFromRS(rs);
-			myConnection.close();
+			return createFromRS(rs).get(0);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return null;
 	}
 
-	public static void findByOwner(String owner) {
+	public static List<Conto> findByOwner(String owner) {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE owner LIKE ?");) {
 			preparedStatement.setString(1, "%*" + owner + "*%");
 			ResultSet rs = preparedStatement.executeQuery();
-			printUtenteFromRS(rs);
-			myConnection.close();
+			return createFromRS(rs);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return null;
 	}
 
-	public static void findByIban(String iban) {
+	public static Conto findByIban(String iban) {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");) {
 			preparedStatement.setString(1, iban);
 			ResultSet rs = preparedStatement.executeQuery();
-			printUtenteFromRS(rs);
-			myConnection.close();
+			return createFromRS(rs).get(0);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return null;
 	}
 
-	public static void printUtenteFromRS(ResultSet rs) throws SQLException {
+	public static List<Conto> createFromRS(ResultSet rs) throws SQLException {
+		List<Conto> contiTrovati = new ArrayList<Conto>();
 		while(rs.next()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("OWNER: " + rs.getString("OWNER") + "\n");
-			sb.append("TOTAL_AMOUNT: " + rs.getDouble("TOTAL_AMOUNT") + "\n");
-			sb.append("IBAN: " + rs.getString("IBAN") + "\n");
-			sb.append("STATUS: " + rs.getString("STATUS") + "\n");
-			sb.append("COUNT_TYPE: " + rs.getInt("COUNT_TYPE") + "\n");
-			sb.append("CREATED_AT: " + rs.getDate("CREATED_AT") + "\n");
-			System.out.println(sb.toString());
+			Conto contoTrovato = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"),
+					rs.getString("IBAN"), StatusConto.valueOf(rs.getString("STATUS")), CountType.getEnumValue(rs.getInt("COUNT_TYPE")), rs.getDate("CREATED_AT"));
+			contoTrovato.setId(rs.getInt("ID"));
+			contiTrovati.add(contoTrovato);
 		}
+		return contiTrovati;
 	}
 
 	public static void bonifico(String ibanPagante, String ibanRicevente, double soldi) {
