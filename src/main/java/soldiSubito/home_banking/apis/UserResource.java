@@ -57,8 +57,8 @@ public class UserResource {
 		
 		//String cf ="NFFYMR95R26B354O"; 
 		//String password = "token";
-		System.out.println(login.cf);
-		System.out.println(login.pwd);
+		//System.out.println(login.cf);
+		//System.out.println(login.pwd);
 		
 		User user = null;
 		String myQuery = "SELECT * FROM user WHERE fiscal_code = ? AND password = ?";

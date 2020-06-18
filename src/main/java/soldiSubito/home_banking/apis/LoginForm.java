@@ -11,11 +11,11 @@ import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 public class LoginForm {
 	
-	protected String cf;
+	protected String cf;	
 	protected String pwd;
 	
 	@JsonbCreator
-	public LoginForm(@JsonbProperty("cf") String cf, @JsonbProperty("password") String pwd) {
+	public LoginForm(@JsonbProperty("username") String cf, @JsonbProperty("password") String pwd) {
 		this.cf = cf;
 		this.pwd = pwd;
 	}
