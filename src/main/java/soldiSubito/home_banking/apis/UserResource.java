@@ -64,8 +64,8 @@ public class UserResource {
 		String myQuery = "SELECT * FROM user WHERE fiscal_code = ? AND password = ?";
 		try (Connection myConnection = DBConnection.connect();
 			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
-			preparedStatement.setString(1, login.cf);
-			preparedStatement.setString(2, login.pwd);
+			preparedStatement.setString(1, login.getCf());
+			preparedStatement.setString(2, login.getPwd());
 			ResultSet rs = preparedStatement.executeQuery();
 			if(rs.next()) {
 				StringBuilder sb = new StringBuilder();

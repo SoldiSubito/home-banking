@@ -19,19 +19,32 @@ import java.util.Scanner;
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyVisibilityStrategy;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
-import com.mysql.cj.x.protobuf.MysqlxCrud.Find;
+import soldiSubito.home_banking.apis.LoginForm;
 
 public class UserManagement {
 
-	//POST
-	public static void login(String cf, String password) {
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response login(LoginForm login) {
 		
+		//String cf ="NFFYMR95R26B354O"; 
+		//String password = "token";
+		//System.out.println(login.cf);
+		//System.out.println(login.pwd);
+		
+		User user = null;
 		String myQuery = "SELECT * FROM user WHERE fiscal_code = ? AND password = ?";
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
-			preparedStatement.setString(1, cf);
-			preparedStatement.setString(2, password);
+			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
+			preparedStatement.setString(1, login.getCf());
+			preparedStatement.setString(2, login.getPwd());
 			ResultSet rs = preparedStatement.executeQuery();
 			if(rs.next()) {
 				StringBuilder sb = new StringBuilder();
@@ -41,7 +54,9 @@ public class UserManagement {
 				sb.append(rs.getString("PASSWORD") + "\n");
 				sb.append(rs.getDate("BIRTH_DATE") + "\n");
 				sb.append(rs.getInt("CONTACT") + "\n");
-				System.out.println(sb.toString());
+				
+				//String name, String surname, Date dateOfBirth, String token, String cf
+				user = new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getDate("BIRTH_DATE"),rs.getString("PASSWORD"),rs.getString("FISCAL_CODE"));
 			}else {
 				System.out.println("Nome utente o password non corrispondono.");
 			}
@@ -51,7 +66,8 @@ public class UserManagement {
 			e.printStackTrace();
 		}
 		
-		//risposta tutti i parametri per identificare l'utente (TOKEN NECESSARIO)
+		return Response.ok(user.toJson()).build();
+		
 	}
 	
 	//POST

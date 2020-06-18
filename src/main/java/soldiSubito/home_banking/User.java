@@ -6,6 +6,8 @@ import java.util.Date;
 
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.annotation.JsonbCreator;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 
 public class User {
@@ -13,14 +15,17 @@ public class User {
 	private String surname;
 	private Date dateOfBirth;
 	private String token;
-	//private Gender gender;
-	//private String birthPlace;
-	//private String livingPlace;
+	private Gender gender;
+	private String birthPlace;
+	private String livingPlace;
 	private String cf;
-	//private String phoneNumber;
-	//private String eMail;
-	//private String identityId;
-	public User(String name, String surname, Date dateOfBirth, String token, String cf) {
+	private String phoneNumber;
+	private String eMail;
+	private String identityId;
+	private String password;
+	
+	@JsonbCreator
+	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") Date dateOfBirth, @JsonbProperty("token") String token, @JsonbProperty("cf") String cf) {
 		this.name = name;
 		this.surname = surname;
 		this.dateOfBirth = dateOfBirth;
@@ -28,6 +33,86 @@ public class User {
 		this.cf = cf;
 		
 	}
+	
+	@JsonbCreator
+	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") Date dateOfBirth, @JsonbProperty("gender") Gender gender,@JsonbProperty("birthPlace") String birthPlace, @JsonbProperty("livingPlace") String livingPlace,
+			@JsonbProperty("cf") String cf,@JsonbProperty("phoneNumber") String phoneNumber, @JsonbProperty("eMail") String eMail, @JsonbProperty("identityId") String identityId, @JsonbProperty("password") String password) {
+		this.name = name;
+		this.surname = surname;
+		this.dateOfBirth = dateOfBirth;
+		this.token = token;
+		this.gender = gender;
+		this.birthPlace = birthPlace;
+		this.livingPlace = livingPlace;
+		this.cf = cf;
+		this.phoneNumber = phoneNumber;
+		this.eMail = eMail;
+		this.identityId = identityId;
+		
+	}
+	
+	
+	
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Gender getGender() {
+		return gender;
+	}
+
+	public void setGender(Gender gender) {
+		this.gender = gender;
+	}
+
+	public String getBirthPlace() {
+		return birthPlace;
+	}
+
+	public void setBirthPlace(String birthPlace) {
+		this.birthPlace = birthPlace;
+	}
+
+	public String getLivingPlace() {
+		return livingPlace;
+	}
+
+	public void setLivingPlace(String livingPlace) {
+		this.livingPlace = livingPlace;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String geteMail() {
+		return eMail;
+	}
+
+	public void seteMail(String eMail) {
+		this.eMail = eMail;
+	}
+
+	public String getIdentityId() {
+		return identityId;
+	}
+
+	public void setIdentityId(String identityId) {
+		this.identityId = identityId;
+	}
+
+	public void setDateOfBirth(Date dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
+	}
+
 	public String getName() {
 		return name;
 	}
