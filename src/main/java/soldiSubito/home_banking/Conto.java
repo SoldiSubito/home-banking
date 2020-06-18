@@ -34,6 +34,7 @@ public class Conto {
 			preparedStatement.setInt(1, id);
 			ResultSet rs = preparedStatement.executeQuery();
 			printUtenteFromRS(rs);
+			myConnection.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -42,10 +43,11 @@ public class Conto {
 
 	public static void findByOwner(String owner) {
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE owner LIKE %?%");) {
-			preparedStatement.setString(1, owner);
+				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE owner LIKE ?");) {
+			preparedStatement.setString(1, "%*" + owner + "*%");
 			ResultSet rs = preparedStatement.executeQuery();
 			printUtenteFromRS(rs);
+			myConnection.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,6 +60,7 @@ public class Conto {
 			preparedStatement.setString(1, iban);
 			ResultSet rs = preparedStatement.executeQuery();
 			printUtenteFromRS(rs);
+			myConnection.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
