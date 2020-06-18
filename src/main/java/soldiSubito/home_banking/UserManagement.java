@@ -78,7 +78,7 @@ public class UserManagement {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public static void register(User user) {
+	public static Response register(User user) {
 		// long age = ChronoUnit.YEARS.between(dateOfBirth, Date.valueOf(date));
 		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni
 		// per creare un account.");
@@ -88,7 +88,7 @@ public class UserManagement {
 			throw new IllegalArgumentException("Il cognome non può essere vuoto.");
 		if (user.getBirthPlace().isBlank())
 			throw new IllegalArgumentException("Il luogo di nascita non può essere vuoto.");
-		if (user.getBirthPlace().isBlank())
+		if (user.getLivingPlace().isBlank())
 			throw new IllegalArgumentException("La residenza non può essere vuota.");
 		// if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La
 		// data di nascita non può essere nel futuro.");
@@ -101,11 +101,15 @@ public class UserManagement {
 		// forse controllo identity Id
 		int generatedId = saveGenerics(user.getLivingPlace(), user.geteMail(), user.getPhoneNumber(),
 				user.getBirthPlace());
+		if (generatedId == -1) {
+			return Response.status(406, "User still present in our Database ").build();
+		}
 		// DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		// String strDate = dateFormat.format(dateOfBirth)
 		saveUser(new String[] { user.getName(), user.getSurname(), user.getCf(), user.getPassword(),
 				Integer.toString(generatedId) }, user.getDateOfBirth());
-		System.out.println("Registered User " + generatedId + " successfully");
+		// System.out.println("Registered User " + generatedId + " successfully");
+		return Response.ok("User registered successfully").build();
 	}
 
 	public void modifyPhoneNumber() {
@@ -182,6 +186,8 @@ public class UserManagement {
 	}
 
 	private static void saveUser(String[] data, Date dateOfBirth) {
+		if (Integer.parseInt(data[4]) == -1)
+			return;
 		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at)"
 				+ " VALUES (?,?,?,?,?,?,?,?)";
 
@@ -193,7 +199,7 @@ public class UserManagement {
 			preparedStatement.setString(4, data[3]);
 
 			// Date date=Date.valueOf(data[4]);
-			preparedStatement.setDate(5,dateOfBirth);
+			preparedStatement.setDate(5, dateOfBirth);
 			preparedStatement.setInt(6, Integer.parseInt(data[4]));
 			preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
 			preparedStatement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));

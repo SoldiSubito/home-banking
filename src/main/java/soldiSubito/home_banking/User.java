@@ -29,7 +29,7 @@ public class User {
 	private String password;
 	
 	@JsonbCreator
-	
+	//ToRegister
 	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") String dateOfBirth, @JsonbProperty("gender") Gender gender,@JsonbProperty("birth_place") String birthPlace, @JsonbProperty("living_place") String livingPlace,
 			@JsonbProperty("cf") String cf,@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("email") String eMail, @JsonbProperty("identityId") String identityId, @JsonbProperty("password") String password) throws ParseException {
 		this.name = name;
