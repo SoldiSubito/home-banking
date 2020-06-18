@@ -2,6 +2,8 @@ package soldiSubito.home_banking;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -20,6 +22,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.bouncycastle.util.encoders.Hex;
 
 import soldiSubito.home_banking.apis.LoginForm;
 import soldiSubito.home_banking.entity.ErrorFounded;
@@ -99,14 +103,26 @@ public class UserManagement {
 		if (!isValidMail(user.geteMail()))
 			return Response.status(323, new ErrorFounded(406,"L'email non è corretta").toJson()).build();
 		// forse controllo identity Id
+		
+		String encoded = "";
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(
+			  user.getPassword().getBytes(StandardCharsets.UTF_8));
+			encoded = new String(Hex.encode(hash));
+			
+		}catch(Exception e) {
+			return Response.status(323, new ErrorFounded(406,e.toString()).toJson()).build();
+		}
+		
 		int generatedId = saveGenerics(user.getLivingPlace(), user.geteMail(), user.getPhoneNumber(),
 				user.getBirthPlace());
 		if (generatedId == -1) {
-			return Response.status(406, new ErrorFounded(406,"User still present in our Database ")).build();
+			return Response.status(406, new ErrorFounded(406,"User still present in our Database ").toJson()).build();
 		}
 		// DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		// String strDate = dateFormat.format(dateOfBirth)
-		saveUser(new String[] { user.getName(), user.getSurname(), user.getCf(), user.getPassword(),
+		saveUser(new String[] { user.getName(), user.getSurname(), user.getCf(), encoded,
 				Integer.toString(generatedId), user.getGender().toString() }, user.getDateOfBirth());
 		// System.out.println("Registered User " + generatedId + " successfully");
 		return Response.ok("User registered successfully").build();
