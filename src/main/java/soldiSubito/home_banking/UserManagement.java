@@ -20,10 +20,13 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 
+import com.mysql.cj.x.protobuf.MysqlxCrud.Find;
+
 public class UserManagement {
 
 	//POST
 	public static void login(String cf, String password) {
+		
 		String myQuery = "SELECT * FROM user WHERE fiscal_code = ? AND password = ?";
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
