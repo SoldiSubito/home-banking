@@ -36,7 +36,7 @@ import javax.ws.rs.core.Response;
 import soldiSubito.home_banking.DBConnection;
 import soldiSubito.home_banking.User;
 
-@Path("/user")
+@Path("/userr")
 public class UserResource {
 	
 	/*
