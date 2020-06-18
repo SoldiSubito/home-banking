@@ -11,13 +11,13 @@ import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 public class LoginForm {
 	
-	protected String cf;	
-	protected String pwd;
+	private String cf;	
+	private String pwd;
 	
 	@JsonbCreator
 	public LoginForm(@JsonbProperty("username") String cf, @JsonbProperty("password") String pwd) {
-		this.cf = cf;
-		this.pwd = pwd;
+		this.setCf(cf);
+		this.setPwd(pwd);
 	}
 
 	public String toJson() {
@@ -34,6 +34,22 @@ public class LoginForm {
 			}
 		});
 		return JsonbBuilder.newBuilder().withConfig(config).build().toJson(this);
+	}
+
+	public String getCf() {
+		return cf;
+	}
+
+	public void setCf(String cf) {
+		this.cf = cf;
+	}
+
+	public String getPwd() {
+		return pwd;
+	}
+
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
 	}
 }
 
