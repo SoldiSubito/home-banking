@@ -86,35 +86,33 @@ public class UserManagement {
 		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni
 		// per creare un account.");
 		if (user.getName().isBlank())
-			
-			return Response.status(323, new ErrorFounded(323,"fub").toJson()).build();
-		
+			return Response.status(323, new ErrorFounded(406,"Il nome non può essere vuoto.").toJson()).build();
 		//dentro entity Error(status, message)
 			//throw new IllegalArgumentException("Il nome non può essere vuoto.");
 		if (user.getSurname().isBlank())
-			throw new IllegalArgumentException("Il cognome non può essere vuoto.");
+			return Response.status(323, new ErrorFounded(406,"Il cognome non può essere vuoto.").toJson()).build();
 		if (user.getBirthPlace().isBlank())
-			throw new IllegalArgumentException("Il luogo di nascita non può essere vuoto.");
+			return Response.status(323, new ErrorFounded(406,"Il luogo di nascita non può essere vuoto.").toJson()).build();
 		if (user.getLivingPlace().isBlank())
-			throw new IllegalArgumentException("La residenza non può essere vuota.");
+			return Response.status(323, new ErrorFounded(406,"La residenza non può essere vuota.").toJson()).build();
 		// if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La
 		// data di nascita non può essere nel futuro.");
 		if (!isValidFiscalCode(user.getCf()))
-			throw new IllegalArgumentException("Il codice fiscale non è corretto");
+			return Response.status(323, new ErrorFounded(406,"Il codice fiscale non è corretto").toJson()).build();
 		if (!isValidNumeroFisso(user.getPhoneNumber().trim()) && !isValidNumeroMobile(user.getPhoneNumber().trim()))
-			throw new IllegalArgumentException("Il numero di telefono non è corretto");
+			return Response.status(323, new ErrorFounded(406,"Il numero di telefono non è corretto").toJson()).build();
 		if (!isValidMail(user.geteMail()))
-			throw new IllegalArgumentException("L'email non è corretta");
+			return Response.status(323, new ErrorFounded(406,"L'email non è corretta").toJson()).build();
 		// forse controllo identity Id
 		int generatedId = saveGenerics(user.getLivingPlace(), user.geteMail(), user.getPhoneNumber(),
 				user.getBirthPlace());
 		if (generatedId == -1) {
-			return Response.status(406, "User still present in our Database ").build();
+			return Response.status(406, new ErrorFounded(406,"User still present in our Database ")).build();
 		}
 		// DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		// String strDate = dateFormat.format(dateOfBirth)
 		saveUser(new String[] { user.getName(), user.getSurname(), user.getCf(), user.getPassword(),
-				Integer.toString(generatedId) }, user.getDateOfBirth());
+				Integer.toString(generatedId), user.getGender().toString() }, user.getDateOfBirth());
 		// System.out.println("Registered User " + generatedId + " successfully");
 		return Response.ok("User registered successfully").build();
 	}
@@ -123,6 +121,10 @@ public class UserManagement {
 
 	}
 
+	public void editUserGenerics() {
+		//cambia email, telefono, residenza
+	}
+	
 	public void identityId() {
 
 	}
@@ -195,22 +197,23 @@ public class UserManagement {
 	private static void saveUser(String[] data, Date dateOfBirth) {
 		if (Integer.parseInt(data[4]) == -1)
 			return;
-		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at)"
-				+ " VALUES (?,?,?,?,?,?,?,?)";
+		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at,gender)"
+				+ " VALUES (?,?,?,?,?,?,?,?,?)";
 
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
 			preparedStatement.setString(1, data[0]);
 			preparedStatement.setString(2, data[1]);
 			preparedStatement.setString(3, data[2]);
-			preparedStatement.setString(4, data[3]);
-
+			preparedStatement.setString(4, data[3]);	
 			// Date date=Date.valueOf(data[4]);
 			preparedStatement.setDate(5, dateOfBirth);
 			preparedStatement.setInt(6, Integer.parseInt(data[4]));
 			preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
 			preparedStatement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-			// preparedStatement.setInt(9, Integer.parseInt(data[6]));
+			
+			 preparedStatement.setString(9, data[5]);
+			 
 			preparedStatement.execute();
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());

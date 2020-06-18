@@ -34,7 +34,6 @@ public class User {
 			@JsonbProperty("cf") String cf,@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("email") String eMail, @JsonbProperty("identityId") String identityId, @JsonbProperty("password") String password) throws ParseException {
 		this.name = name;
 		this.surname = surname;
-	//	DateFormat df = new SimpleDateFormat("MM/dd/yyyy"); 
 		Date date = Date.valueOf(dateOfBirth);
 		this.dateOfBirth = date;
 		this.password = password;
@@ -45,6 +44,7 @@ public class User {
 		this.phoneNumber = phoneNumber;
 		this.eMail = eMail;
 		this.identityId = identityId;
+		this.gender = gender;
 		
 	}
 	
