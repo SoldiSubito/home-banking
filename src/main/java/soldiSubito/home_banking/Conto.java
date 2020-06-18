@@ -10,7 +10,7 @@ public class Conto{
 	private StatusConto status;
 	private CountType countType;
 	private Date createdAt;
-	
+
 	public Conto(String owner, double totalAmount, String iban, StatusConto status, CountType countType,
 			Date createdAt) {
 		this.owner = owner;
@@ -21,6 +21,15 @@ public class Conto{
 		this.createdAt = createdAt;
 	}
 	
+	@Override
+	public String toString() {
+		return "\n\nID = " + id + "\nOwner = " + owner + "\nTotal amount = " + totalAmount + "\nIban = " + iban + "\nStatus = "
+				+ status + "\nCount type = " + countType + "\nCreated at = " + createdAt;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 	public int getId() {
 		return id;
 	}
