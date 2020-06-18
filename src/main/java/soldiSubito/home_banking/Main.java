@@ -1,4 +1,4 @@
-package soldiSubito.home_banking;
+/*package soldiSubito.home_banking;
 
 import java.sql.Date;
 import java.sql.SQLException;
@@ -10,7 +10,7 @@ public class Main {
 		/*Scanner scanner = new Scanner(System.in);
 		String inputString = scanner.nextLine();
 		*/
-		Date dateOfBirth = Date.valueOf(LocalDate.of(1850,10,17));
+	//	Date dateOfBirth = Date.valueOf(LocalDate.of(1850,10,17));
 		/*String name,
 		String surname,
 		LocalDate dateOfBirth,
@@ -30,9 +30,10 @@ public class Main {
 //		Conto.bonifico("IT123546", "IT666666", 100);
 //		Conto.findByIban("IT666666");
 //		Conto.findByIban("IT123546");
-		UserManagement.deleteUserById(4);
+		/*
+		UserManagement.deleteUserById(4);*/
 		
 		
-		
+	/*	
 	}
-}
+} */

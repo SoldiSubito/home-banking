@@ -1,5 +1,7 @@
 package soldiSubito.home_banking;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -13,6 +15,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Scanner;
+
+import javax.json.bind.JsonbBuilder;
+import javax.json.bind.JsonbConfig;
+import javax.json.bind.config.PropertyVisibilityStrategy;
 
 public class UserManagement {
 
@@ -32,7 +38,6 @@ public class UserManagement {
 				sb.append(rs.getString("PASSWORD") + "\n");
 				sb.append(rs.getDate("BIRTH_DATE") + "\n");
 				sb.append(rs.getInt("CONTACT") + "\n");
-				sb.append(rs.getInt("ID_CONTO") + "\n");
 				System.out.println(sb.toString());
 			}else {
 				System.out.println("Nome utente o password non corrispondono.");
@@ -173,5 +178,21 @@ public class UserManagement {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}
+	}
+	
+	public String toJson() {
+		JsonbConfig config = new JsonbConfig().withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
+			
+			@Override
+			public boolean isVisible(Method arg0) {
+				return false;
+			}
+			
+			@Override
+			public boolean isVisible(Field arg0) {
+				return true;
+			}
+		});
+		return JsonbBuilder.newBuilder().withConfig(config).build().toJson(this);
 	}
 }
