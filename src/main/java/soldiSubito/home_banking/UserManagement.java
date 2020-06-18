@@ -27,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import soldiSubito.home_banking.apis.LoginForm;
+import soldiSubito.home_banking.entity;
 
 @Path("/user")
 public class UserManagement {
@@ -83,7 +84,10 @@ public class UserManagement {
 		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni
 		// per creare un account.");
 		if (user.getName().isBlank())
-			throw new IllegalArgumentException("Il nome non può essere vuoto.");
+			return Response.status(Error(406,"Nome non corretto").toJson()).build();
+		
+		//dentro entity Error(status, message)
+			//throw new IllegalArgumentException("Il nome non può essere vuoto.");
 		if (user.getSurname().isBlank())
 			throw new IllegalArgumentException("Il cognome non può essere vuoto.");
 		if (user.getBirthPlace().isBlank())
