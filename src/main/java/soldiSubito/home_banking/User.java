@@ -204,6 +204,9 @@ public class User {
 	}
 	
 	/*Domanda segreta (nome del tuo migliore amico)*/
+	
+	
+	
 	public String toJson() {
 		JsonbConfig config = new JsonbConfig().withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
 			
@@ -219,6 +222,16 @@ public class User {
 		});
 		return JsonbBuilder.newBuilder().withConfig(config).build().toJson(this);
 	}
+	
+	
+	/*
+	 * 
+	 * 
+	 * {response:{
+	 * 				message : "Nome non corretto"}
+	 * }
+	 * 
+	 */
 	
 	
 	
