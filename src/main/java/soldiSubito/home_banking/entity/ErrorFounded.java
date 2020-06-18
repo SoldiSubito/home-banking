@@ -7,12 +7,12 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 
-public class Error {
+public class ErrorFounded {
 	
 	private String message;
 	private Integer status;
 	
-	public Error(Integer status, String message) {
+	public ErrorFounded(Integer status, String message) {
 		this.status = status;
 		this.message = message;
 	}
