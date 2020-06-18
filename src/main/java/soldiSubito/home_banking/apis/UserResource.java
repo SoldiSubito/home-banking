@@ -39,18 +39,33 @@ import soldiSubito.home_banking.User;
 @Path("/user")
 public class UserResource {
 	
-	
-	@GET
-	public Response login() {
-		String cf ="NFFYMR95R26B354O"; 
-		String password = "token";
+	/*
+	 * 
+	 * @POST
+	@Path("/user")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response addUser(User user) {
+		return Response.ok(user.toJson()).build();
+	}
+	 */
+
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response login(LoginForm login) {
+		
+		//String cf ="NFFYMR95R26B354O"; 
+		//String password = "token";
+		System.out.println(login.cf);
+		System.out.println(login.pwd);
+		
 		User user = null;
 		String myQuery = "SELECT * FROM user WHERE fiscal_code = ? AND password = ?";
-		String response = "";
 		try (Connection myConnection = DBConnection.connect();
 			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
-			preparedStatement.setString(1, cf);
-			preparedStatement.setString(2, password);
+			preparedStatement.setString(1, login.cf);
+			preparedStatement.setString(2, login.pwd);
 			ResultSet rs = preparedStatement.executeQuery();
 			if(rs.next()) {
 				StringBuilder sb = new StringBuilder();
@@ -60,7 +75,7 @@ public class UserResource {
 				sb.append(rs.getString("PASSWORD") + "\n");
 				sb.append(rs.getDate("BIRTH_DATE") + "\n");
 				sb.append(rs.getInt("CONTACT") + "\n");
-				System.out.println(sb.toString());
+				
 				//String name, String surname, Date dateOfBirth, String token, String cf
 				user = new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getDate("BIRTH_DATE"),rs.getString("PASSWORD"),rs.getString("FISCAL_CODE"));
 			}else {
