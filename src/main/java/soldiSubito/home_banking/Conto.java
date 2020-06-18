@@ -12,7 +12,7 @@ public class Conto {
 
 		String myQuery = "INSERT INTO conto(owner, total_amount, iban, status, count_type, created_at)" + 
 		" VALUES (?,?,?,?,?,?)";
-		
+
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);){
 			preparedStatement.setString(1, owner);
@@ -28,34 +28,52 @@ public class Conto {
 		}
 	}
 
-	private static void find(String myQuery) {
+	public static void findById(int id) {
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
+				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE id = ?");) {
+			preparedStatement.setInt(1, id);
 			ResultSet rs = preparedStatement.executeQuery();
-			while(rs.next()) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("OWNER: " + rs.getString("OWNER") + "\n");
-				sb.append("TOTAL_AMOUNT: " + rs.getDouble("TOTAL_AMOUNT") + "\n");
-				sb.append("IBAN: " + rs.getString("IBAN") + "\n");
-				sb.append("STATUS: " + rs.getString("STATUS") + "\n");
-				sb.append("COUNT_TYPE: " + rs.getInt("COUNT_TYPE") + "\n");
-				sb.append("CREATED_AT: " + rs.getDate("CREATED_AT") + "\n");
-				System.out.println(sb.toString());
-			}
-			
+			printUtenteFromRS(rs);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	public static void findById(int id) {
-		find("SELECT * FROM conto WHERE id = " + id);
-	}
+
 	public static void findByOwner(String owner) {
-		find("SELECT * FROM conto WHERE owner LIKE " + "'%" + owner + "%'");
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE owner LIKE %?%");) {
+			preparedStatement.setString(1, owner);
+			ResultSet rs = preparedStatement.executeQuery();
+			printUtenteFromRS(rs);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
+
 	public static void findByIban(String iban) {
-		find("SELECT * FROM conto WHERE iban = '" + iban + "'");
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");) {
+			preparedStatement.setString(1, iban);
+			ResultSet rs = preparedStatement.executeQuery();
+			printUtenteFromRS(rs);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void printUtenteFromRS(ResultSet rs) throws SQLException {
+		while(rs.next()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("OWNER: " + rs.getString("OWNER") + "\n");
+			sb.append("TOTAL_AMOUNT: " + rs.getDouble("TOTAL_AMOUNT") + "\n");
+			sb.append("IBAN: " + rs.getString("IBAN") + "\n");
+			sb.append("STATUS: " + rs.getString("STATUS") + "\n");
+			sb.append("COUNT_TYPE: " + rs.getInt("COUNT_TYPE") + "\n");
+			sb.append("CREATED_AT: " + rs.getDate("CREATED_AT") + "\n");
+			System.out.println(sb.toString());
+		}
 	}
 
 	public static void bonifico(String ibanPagante, String ibanRicevente, double soldi) {
