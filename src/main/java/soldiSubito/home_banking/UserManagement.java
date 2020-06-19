@@ -141,13 +141,33 @@ public class UserManagement {
 		return Response.ok("User registered successfully").build();
 	}
 
-	public void modifyPhoneNumber() {
+	
+	@Path("/edit_user")
+	@POST
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response editUserGenerics(User user) {
+
+		String myQuery = " UPDATE generics SET living_place, eMail,phone_number VALUES (?, ? ,?) WHERE id = ?";
+		try {
+			Connection myConnection = DBConnection.connect();
+			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
+			preparedStatement.setString(1, user.getLivingPlace());
+			preparedStatement.setString(2, user.geteMail());
+			preparedStatement.setString(3, user.getPhoneNumber());
+			preparedStatement.setInt(4, user.getId());
+
+			preparedStatement.executeUpdate();
+
+		} catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("VendorError: " + ex.getErrorCode());
+			return Response.status(404, new ErrorFounded(404, "The modify is not register!").toJson()).build();
+		}
+		return Response.status(200, new ErrorFounded(200, "The modify is valid.").toJson()).build();
 
 	}
 
-	public void editUserGenerics() {
-		//cambia email, telefono, residenza
-	}
 	
 	public void identityId() {
 

@@ -27,9 +27,19 @@ public class User {
 	private String eMail;
 	private String identityId;
 	private String password;
+	private Integer id;
 	
-	@JsonbCreator
 	//ToRegister
+	@JsonbCreator
+
+	public User(@JsonbProperty("living_place") String livingPlace, @JsonbProperty("email") String eMail,
+			@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("id_user") Integer id_user) {
+		this.livingPlace = livingPlace;
+		this.eMail = eMail;
+		this.phoneNumber = phoneNumber;
+		this.id = id_user;
+	}
+
 	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") String dateOfBirth, @JsonbProperty("gender") Gender gender,@JsonbProperty("birth_place") String birthPlace, @JsonbProperty("living_place") String livingPlace,
 			@JsonbProperty("cf") String cf,@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("email") String eMail, @JsonbProperty("identityId") String identityId, @JsonbProperty("password") String password) throws ParseException {
 		this.name = name;
@@ -57,8 +67,9 @@ public class User {
 		
 	}
 	
-	
-	
+	public User() {
+	}
+
 	
 	public String getPassword() {
 		return password;
@@ -221,6 +232,14 @@ public class User {
 			}
 		});
 		return JsonbBuilder.newBuilder().withConfig(config).build().toJson(this);
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 	
 	
