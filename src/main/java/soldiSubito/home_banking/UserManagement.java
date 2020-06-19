@@ -148,7 +148,7 @@ public class UserManagement {
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response editUserGenerics(User user) {
 
-		String myQuery = " UPDATE generics SET living_place, eMail,phone_number VALUES (?, ? ,?) WHERE id = ?";
+		String myQuery = " UPDATE generics SET living_place=?, eMail = ?,phone_number=? WHERE id = ?";
 		try {
 			Connection myConnection = DBConnection.connect();
 			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
