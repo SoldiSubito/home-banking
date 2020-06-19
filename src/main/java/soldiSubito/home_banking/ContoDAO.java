@@ -49,8 +49,6 @@ public class ContoDAO {
 		}
 		return Response.status(400).build();
 	}
-
-	
 	
 	@Path("/findByID")
 	@GET
@@ -62,8 +60,7 @@ public class ContoDAO {
 			ResultSet rs = preparedStatement.executeQuery();
 			List<Conto> contiTrovati = createFromRS(rs);
 			if(contiTrovati.size() == 1 && contiTrovati.get(0) != null)
-			return Response.ok(createFromRS(rs).get(0).toJson()).build();
-			
+				return Response.ok(contiTrovati.get(0).toJson()).build();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -73,7 +70,7 @@ public class ContoDAO {
 	@Path("/findByOwner")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public static Response findByOwner(@QueryParam("owner") String owner) {
+	public static Response findByOwner(@QueryParam("owner") int owner) {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE owner LIKE ?");) {
 			preparedStatement.setString(1, "%*" + owner + "*%");
@@ -111,7 +108,7 @@ public class ContoDAO {
 		return Response.status(400, "Non esiste un account con questo iban").build();
 	}
 
-	public static List<Conto> createFromRS(ResultSet rs) throws SQLException {
+	private static List<Conto> createFromRS(ResultSet rs) throws SQLException {
 		List<Conto> contiTrovati = new ArrayList<Conto>(0);
 		while(rs.next()) {
 			Conto contoTrovato = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"),
