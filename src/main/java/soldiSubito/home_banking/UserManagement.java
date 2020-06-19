@@ -2,8 +2,6 @@ package soldiSubito.home_banking;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -17,19 +15,11 @@ import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.bouncycastle.util.encoders.Hex;
-
-import com.mysql.cj.util.StringUtils;
 
 import soldiSubito.home_banking.apis.LoginForm;
 import soldiSubito.home_banking.entity.ErrorFounded;
@@ -37,6 +27,8 @@ import soldiSubito.home_banking.entity.ErrorFounded;
 @Path("/user")
 public class UserManagement {
 
+	
+	
 	@Path("/login")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -53,18 +45,7 @@ public class UserManagement {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
 			preparedStatement.setString(1, login.getCf());
-
-			String encoded = "";
-			try {
-				MessageDigest digest = MessageDigest.getInstance("SHA-256");
-				byte[] hash = digest.digest(login.getPwd().getBytes(StandardCharsets.UTF_8));
-				encoded = new String(Hex.encode(hash));
-				System.out.println(encoded);
-			} catch (Exception e) {
-				return Response.status(323, new ErrorFounded(406, e.toString()).toJson()).build();
-			}
-
-			preparedStatement.setString(2, encoded);
+			preparedStatement.setString(2, login.getPwd());
 			ResultSet rs = preparedStatement.executeQuery();
 			if (rs.next()) {
 				StringBuilder sb = new StringBuilder();
@@ -79,9 +60,7 @@ public class UserManagement {
 				user = new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getDate("BIRTH_DATE"),
 						rs.getString("PASSWORD"), rs.getString("FISCAL_CODE"));
 			} else {
-
-				return Response.status(403, new ErrorFounded(403, "Nome utente o password non corrispondono.").toJson())
-						.build();
+				System.out.println("Nome utente o password non corrispondono.");
 			}
 
 		} catch (SQLException e) {
@@ -101,73 +80,43 @@ public class UserManagement {
 		// long age = ChronoUnit.YEARS.between(dateOfBirth, Date.valueOf(date));
 		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni
 		// per creare un account.");
-		if (user.getName().isBlank());
-			return Response.status(323, new ErrorFounded(406, "Il nome non può essere vuoto.").toJson()).build();
-		// dentro entity Error(status, message)
-		// throw new IllegalArgumentException("Il nome non può essere vuoto.");
-		if (user.getSurname().isBlank());
-			return Response.status(323, new ErrorFounded(406, "Il cognome non può essere vuoto.").toJson()).build();
-		if (user.getBirthPlace().isBlank());
-			return Response.status(323, new ErrorFounded(406, "Il luogo di nascita non può essere vuoto.").toJson())
-					.build();
-		if (user.getLivingPlace()isBlank());
-			return Response.status(323, new ErrorFounded(406, "La residenza non può essere vuota.").toJson()).build();
+		if (user.getName().isBlank())
+			return Response.status(323, new ErrorFounded(323,"fub").toJson()).build();
+		//dentro entity Error(status, message)
+			//throw new IllegalArgumentException("Il nome non può essere vuoto.");
+		if (user.getSurname().isBlank())
+			throw new IllegalArgumentException("Il cognome non può essere vuoto.");
+		if (user.getBirthPlace().isBlank())
+			throw new IllegalArgumentException("Il luogo di nascita non può essere vuoto.");
+		if (user.getLivingPlace().isBlank())
+			throw new IllegalArgumentException("La residenza non può essere vuota.");
 		// if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La
 		// data di nascita non può essere nel futuro.");
 		if (!isValidFiscalCode(user.getCf()))
-			return Response.status(323, new ErrorFounded(406, "Il codice fiscale non è corretto").toJson()).build();
+			throw new IllegalArgumentException("Il codice fiscale non è corretto");
 		if (!isValidNumeroFisso(user.getPhoneNumber().trim()) && !isValidNumeroMobile(user.getPhoneNumber().trim()))
-			return Response.status(323, new ErrorFounded(406, "Il numero di telefono non è corretto").toJson()).build();
+			throw new IllegalArgumentException("Il numero di telefono non è corretto");
 		if (!isValidMail(user.geteMail()))
-			return Response.status(323, new ErrorFounded(406, "L'email non è corretta").toJson()).build();
+			throw new IllegalArgumentException("L'email non è corretta");
 		// forse controllo identity Id
-
-		String encoded = "";
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hash = digest.digest(user.getPassword().getBytes(StandardCharsets.UTF_8));
-			encoded = new String(Hex.encode(hash));
-
-		} catch (Exception e) {
-			return Response.status(323, new ErrorFounded(406, e.toString()).toJson()).build();
-		}
-
 		int generatedId = saveGenerics(user.getLivingPlace(), user.geteMail(), user.getPhoneNumber(),
 				user.getBirthPlace());
 		if (generatedId == -1) {
-			return Response.status(406, new ErrorFounded(406, "User still present in our Database ").toJson()).build();
+			return Response.status(406, "User still present in our Database ").build();
 		}
 		// DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		// String strDate = dateFormat.format(dateOfBirth)
-		saveUser(new String[] { user.getName(), user.getSurname(), user.getCf(), encoded, Integer.toString(generatedId),
-				user.getGender().toString() }, user.getDateOfBirth());
+		saveUser(new String[] { user.getName(), user.getSurname(), user.getCf(), user.getPassword(),
+				Integer.toString(generatedId) }, user.getDateOfBirth());
 		// System.out.println("Registered User " + generatedId + " successfully");
 		return Response.ok("User registered successfully").build();
 	}
 
-	@Path("/edit_user")
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response editUserGenerics(User user) {
+	public void modifyPhoneNumber() {
 
-		String myQuery = " Update from generics SET living_place, eMail,phone_number VALUES (?, ? ,?) WHERE id = ?";
-		try {
-			Connection myConnection = DBConnection.connect();
-			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
-			preparedStatement.setString(1, user.getLivingPlace());
-			preparedStatement.setString(2, user.geteMail());
-			preparedStatement.setString(3, user.getPhoneNumber());
-			preparedStatement.setInt(4, user.getId());
+	}
 
-			ResultSet rs = preparedStatement.executeQuery();
-
-		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("VendorError: " + ex.getErrorCode());
-			return Response.status(404, new ErrorFounded(404, "The modify is not register!").toJson()).build();
-		}
-		return Response.ok("The modify is valid.").build();
+	public void identityId() {
 
 	}
 
@@ -218,34 +167,29 @@ public class UserManagement {
 		return generatedKey;
 	}
 
-	@Path("/delete_user")
-	@DELETE
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response deleteUserById(@QueryParam("id") int id ) {
-		String myQuery = "delete from generics where id = (select contact from user where id = ?) ";
-		String myQuery2 = "delete from user where id = ? ";
+	public static void deleteUserById(int id) {
+		// myQuery non funziona
+		String myQuery = "delete from generics where id = (select contact from user where user.id = " + id + ");";
+		String myQuery2 = "delete from user where user.id = " + id;
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
 				PreparedStatement preparedStatement2 = myConnection.prepareStatement(myQuery2);) {
-			preparedStatement.setInt(1,id);
 			preparedStatement.execute();
-			preparedStatement2.setInt(1,id);
 			preparedStatement2.execute();
-			System.out.println("The user is deleted successfully");
+			System.out.println("Deleted User " + id + " successfully");
 		} catch (SQLException e) {
 			System.out.println("SQLException: " + e.getMessage());
 			System.out.println("VendorError: " + e.getErrorCode());
 			e.printStackTrace();
-			return Response.status(404, new ErrorFounded(404, "The user is not deleted!").toJson()).build();
-		} return Response.ok("The user is deleted.").build();
+		}
 
 	}
 
 	private static void saveUser(String[] data, Date dateOfBirth) {
 		if (Integer.parseInt(data[4]) == -1)
 			return;
-		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at,gender)"
-				+ " VALUES (?,?,?,?,?,?,?,?,?)";
+		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at)"
+				+ " VALUES (?,?,?,?,?,?,?,?)";
 
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
@@ -253,65 +197,18 @@ public class UserManagement {
 			preparedStatement.setString(2, data[1]);
 			preparedStatement.setString(3, data[2]);
 			preparedStatement.setString(4, data[3]);
+
 			// Date date=Date.valueOf(data[4]);
 			preparedStatement.setDate(5, dateOfBirth);
 			preparedStatement.setInt(6, Integer.parseInt(data[4]));
 			preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
 			preparedStatement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-
-			preparedStatement.setString(9, data[5]);
-
+			// preparedStatement.setInt(9, Integer.parseInt(data[6]));
 			preparedStatement.execute();
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}
-	}
-	
-	@Path("/find_userByID")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response findById(@QueryParam("id") int id) {
-		User user = null;
-		String myQuery = "select * from user where id = ? ";
-		String myQuery2 = "select * from generics where id = ?";
-		
-		
-		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery))
-			{	PreparedStatement preparedStatement2 = myConnection.prepareStatement(myQuery2);	
-			preparedStatement.setInt(1,id);
-			preparedStatement2.setInt(1,id);
-			ResultSet rs = preparedStatement.executeQuery();
-			ResultSet rs2 = preparedStatement2.executeQuery();
-//			if (rs.next()) {
-//				StringBuilder sb = new StringBuilder();
-//				sb.append(rs.getString("NAME") + "\n");
-//				sb.append(rs.getString("SURNAME") + "\n");
-//				sb.append(rs.getString("FISCAL_CODE") + "\n");
-//				sb.append(rs.getString("PASSWORD") + "\n");
-//				sb.append(rs.getDate("BIRTH_DATE") + "\n");
-//				sb.append(rs.getString("GENDER") + "\n");
-//				sb.append(rs.getString("LIVING_PLACE") + "\n");
-//				sb.append(rs.getString("EMAIL") + "\n");
-//				sb.append(rs.getString("PHONE_NUMBER") + "\n");
-//				sb.append(rs.getString("BIRTH_PLACE") + "\n");
-//				
-
-				// String name, String surname, Date dateOfBirth, String token, String cf
-//				user = new User(rs.getString("NAME"), rs.getString("SURNAME"),rs.getString("FISCAL_CODE"),
-//						rs.getString("PASSWORD"), rs.getDate("BIRTH_DATE"),
-//						rs.getString("GENDER"), rs.getString("LIVING_PLACE"), rs.getDate("EMAIL"),
-//						rs.getString("PHONE_NUMBER"), rs.getString("BIRTH_PLACE")) ;
-//			
-			System.out.println("The user is finded by id.");
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("VendorError: " + e.getErrorCode());
-			e.printStackTrace();
-			return Response.status(404, new ErrorFounded(404, "The user is not find!").toJson()).build();
-		} return Response.ok("The user is finded by id.").build();
-		
 	}
 
 	public String toJson() {
