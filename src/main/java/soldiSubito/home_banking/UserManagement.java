@@ -49,7 +49,19 @@ public class UserManagement {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
 			preparedStatement.setString(1, login.getCf());
-			preparedStatement.setString(2, login.getPwd());
+			
+			String encoded = "";
+			try {
+				MessageDigest digest = MessageDigest.getInstance("SHA-256");
+				byte[] hash = digest.digest(
+				  login.getPwd().getBytes(StandardCharsets.UTF_8));
+				encoded = new String(Hex.encode(hash));
+				System.out.println(encoded);
+			}catch(Exception e) {
+				return Response.status(323, new ErrorFounded(406,e.toString()).toJson()).build();
+			}
+	
+			preparedStatement.setString(2, encoded);
 			ResultSet rs = preparedStatement.executeQuery();
 			if (rs.next()) {
 				StringBuilder sb = new StringBuilder();
@@ -64,7 +76,8 @@ public class UserManagement {
 				user = new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getDate("BIRTH_DATE"),
 						rs.getString("PASSWORD"), rs.getString("FISCAL_CODE"));
 			} else {
-				System.out.println("Nome utente o password non corrispondono.");
+				
+				return Response.status(403, new ErrorFounded(403,"Nome utente o password non corrispondono.").toJson()).build();
 			}
 
 		} catch (SQLException e) {
