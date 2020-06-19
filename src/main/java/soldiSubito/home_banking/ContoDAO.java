@@ -50,30 +50,46 @@ public class ContoDAO {
 		return Response.status(400).build();
 	}
 
-	public static Conto findById(int id) {
+	
+	
+	@Path("/findByID")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response findById(@QueryParam("id") int id) {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE id = ?");) {
 			preparedStatement.setInt(1, id);
 			ResultSet rs = preparedStatement.executeQuery();
-			return createFromRS(rs).get(0);
+			List<Conto> contiTrovati = createFromRS(rs);
+			if(contiTrovati.size() == 1 && contiTrovati.get(0) != null)
+			return Response.ok(createFromRS(rs).get(0).toJson()).build();
+			
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return Response.status(400, "Non esiste un conto con questo id").build();
 	}
 
-	public static List<Conto> findByOwner(String owner) {
+	@Path("/findByOwner")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response findByOwner(@QueryParam("owner") String owner) {
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE owner LIKE ?");) {
 			preparedStatement.setString(1, "%*" + owner + "*%");
 			ResultSet rs = preparedStatement.executeQuery();
-			return createFromRS(rs);
+			List<Conto> contiTrovati = createFromRS(rs);
+			if(contiTrovati.size()>=1){
+				String sumJSON = "" ;
+				for(Conto c :contiTrovati) {
+					sumJSON+=c.toJson();
+					}
+				return Response.ok(sumJSON).build();
+			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return Response.status(400, "Non esiste un conto con questo owner").build();
 	}
 
 	//Per path param usa:
