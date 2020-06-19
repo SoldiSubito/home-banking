@@ -71,34 +71,25 @@ public class UserManagement {
 	}
 	
 	//POST
-	public static void register(
-		String name,
-		String surname,
-		Date dateOfBirth,
-		Gender gender,
-		String birthPlace,
-		String livingPlace,
-		String cf,
-		String phoneNumber,
-		String eMail,
-		String identityId,
-		String password) {
+	public static void register( User user)
+		
+			{
 		//	long age = ChronoUnit.YEARS.between(dateOfBirth, Date.valueOf(date));
 		//	if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni per creare un account.");
-			if (name.isBlank()) throw new IllegalArgumentException("Il nome non può essere vuoto.");
-			if (surname.isBlank()) throw new IllegalArgumentException("Il cognome non può essere vuoto.");
-			if (birthPlace.isBlank()) throw new IllegalArgumentException("Il luogo di nascita non può essere vuoto.");
-			if (livingPlace.isBlank()) throw new IllegalArgumentException("La residenza non può essere vuota.");
-			//if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La data di nascita non può essere nel futuro.");
-			if (!isValidFiscalCode(cf)) throw new IllegalArgumentException("Il codice fiscale non è corretto");
-			if (!isValidNumeroFisso(phoneNumber.trim()) &&
-					!isValidNumeroMobile(phoneNumber.trim())) throw new IllegalArgumentException("Il numero di telefono non è corretto");
-			if (!isValidMail(eMail)) throw new IllegalArgumentException("L'email non è corretta");
+			if (user.getName().isBlank()) throw new IllegalArgumentException("Il nome non può essere vuoto.");
+			if (user.getSurname().isBlank()) throw new IllegalArgumentException("Il cognome non può essere vuoto.");
+			if (user.getBirthPlace().isBlank()) throw new IllegalArgumentException("Il luogo di nascita non può essere vuoto.");
+			if (user.getLivingPlace().isBlank()) throw new IllegalArgumentException("La residenza non può essere vuota.");
+			//if (user.getLocalDate().now() < user.getDateOfBirth() throw new IllegalArgumentException("La data di nascita non può essere nel futuro.");
+			if (!isValidFiscalCode(user.getCf())) throw new IllegalArgumentException("Il codice fiscale non è corretto");
+			if (!isValidNumeroFisso(user.getPhoneNumber().trim()) &&
+					!isValidNumeroMobile(user.getPhoneNumber().trim())) throw new IllegalArgumentException("Il numero di telefono non è corretto");
+			if (!isValidMail(user.geteMail())) throw new IllegalArgumentException("L'email non è corretta");
 			//forse controllo identity Id
-			int generatedId = saveGenerics(livingPlace, eMail, phoneNumber, birthPlace);
+			int generatedId = saveGenerics(user.getLivingPlace(), user.geteMail(), user.getPhoneNumber(), user.getBirthPlace());
 		//	DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");  
 		//	String strDate = dateFormat.format(dateOfBirth)
-			saveUser(new String[] {name, surname, cf, password, Integer.toString(generatedId)}, dateOfBirth);
+			saveUser(new String[] {user.getName(), user.getSurname(), user.getCf(), user.getPassword(), Integer.toString(generatedId)}, user.getDateOfBirth());
 			System.out.println("Registered User " + generatedId + " successfully");
 		}
 
@@ -177,7 +168,7 @@ public class UserManagement {
 	
 	
 	
-	private static void saveUser(String[] data, Date dateOfBirth) {
+	private static void saveUser(String[] data, java.util.Date date) {
 		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at)" + 
 		" VALUES (?,?,?,?,?,?,?,?)";
 		
@@ -189,7 +180,7 @@ public class UserManagement {
 			preparedStatement.setString(4, data[3]);
 			
 			//Date date=Date.valueOf(data[4]); 
-			preparedStatement.setDate(5, dateOfBirth);
+			preparedStatement.setDate(5, date);
 			preparedStatement.setInt(6, Integer.parseInt(data[4]));
 			preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
 			preparedStatement.setTimestamp(8,Timestamp.valueOf(LocalDateTime.now()));
