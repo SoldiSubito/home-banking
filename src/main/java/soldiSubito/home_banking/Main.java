@@ -31,7 +31,7 @@ public class Main {
 //		Conto.findByIban("IT666666");
 //		Conto.findByIban("IT123546");
 //		Conto.findById(1);
-		Conto.findByOwner("9");
+		System.out.println(ContoDAO.findByOwner("9").toString());
 		//UserManagement.deleteUserById(7);
 	}
 }

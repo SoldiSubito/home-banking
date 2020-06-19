@@ -2,11 +2,15 @@ package soldiSubito.home_banking;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Date;
+import java.sql.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
 import javax.json.bind.annotation.JsonbCreator;
+import javax.json.bind.annotation.JsonbDateFormat;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 
@@ -25,6 +29,25 @@ public class User {
 	private String password;
 	
 	@JsonbCreator
+	//ToRegister
+	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") String dateOfBirth, @JsonbProperty("gender") Gender gender,@JsonbProperty("birth_place") String birthPlace, @JsonbProperty("living_place") String livingPlace,
+			@JsonbProperty("cf") String cf,@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("email") String eMail, @JsonbProperty("identityId") String identityId, @JsonbProperty("password") String password) throws ParseException {
+		this.name = name;
+		this.surname = surname;
+		Date date = Date.valueOf(dateOfBirth);
+		this.dateOfBirth = date;
+		this.password = password;
+		this.gender = gender;
+		this.birthPlace = birthPlace;
+		this.livingPlace = livingPlace;
+		this.cf = cf;
+		this.phoneNumber = phoneNumber;
+		this.eMail = eMail;
+		this.identityId = identityId;
+		this.gender = gender;
+		
+	}
+	
 	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") Date dateOfBirth, @JsonbProperty("token") String token, @JsonbProperty("cf") String cf) {
 		this.name = name;
 		this.surname = surname;
@@ -34,22 +57,6 @@ public class User {
 		
 	}
 	
-	@JsonbCreator
-	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") Date dateOfBirth, @JsonbProperty("gender") Gender gender,@JsonbProperty("birthPlace") String birthPlace, @JsonbProperty("livingPlace") String livingPlace,
-			@JsonbProperty("cf") String cf,@JsonbProperty("phoneNumber") String phoneNumber, @JsonbProperty("eMail") String eMail, @JsonbProperty("identityId") String identityId, @JsonbProperty("password") String password) {
-		this.name = name;
-		this.surname = surname;
-		this.dateOfBirth = dateOfBirth;
-		this.token = token;
-		this.gender = gender;
-		this.birthPlace = birthPlace;
-		this.livingPlace = livingPlace;
-		this.cf = cf;
-		this.phoneNumber = phoneNumber;
-		this.eMail = eMail;
-		this.identityId = identityId;
-		
-	}
 	
 	
 	
@@ -197,6 +204,9 @@ public class User {
 	}
 	
 	/*Domanda segreta (nome del tuo migliore amico)*/
+	
+	
+	
 	public String toJson() {
 		JsonbConfig config = new JsonbConfig().withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
 			
@@ -212,6 +222,16 @@ public class User {
 		});
 		return JsonbBuilder.newBuilder().withConfig(config).build().toJson(this);
 	}
+	
+	
+	/*
+	 * 
+	 * 
+	 * {response:{
+	 * 				message : "Nome non corretto"}
+	 * }
+	 * 
+	 */
 	
 	
 	

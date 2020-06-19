@@ -1,28 +1,23 @@
-package soldiSubito.home_banking.apis;
-
+package soldiSubito.home_banking.entity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
-import javax.json.bind.annotation.JsonbCreator;
-import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 
-
-
-public class LoginForm {
+public class ErrorFounded {
 	
-	private String cf;	
-	private String pwd;
+	private String message;
+	private Integer status;
 	
-	@JsonbCreator
-	public LoginForm(@JsonbProperty("username") String cf, @JsonbProperty("password") String pwd) {
-		this.setCf(cf);
-		this.setPwd(pwd);
+	public ErrorFounded(Integer status, String message) {
+		this.status = status;
+		this.message = message;
 	}
-
+	
+	
 	public String toJson() {
 		JsonbConfig config = new JsonbConfig().withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
 			
@@ -38,21 +33,5 @@ public class LoginForm {
 		});
 		return JsonbBuilder.newBuilder().withConfig(config).build().toJson(this);
 	}
-
-	public String getCf() {
-		return cf;
-	}
-
-	public void setCf(String cf) {
-		this.cf = cf;
-	}
-
-	public String getPwd() {
-		return pwd;
-	}
-
-	public void setPwd(String pwd) {
-		this.pwd = pwd;
-	}
+	
 }
-
