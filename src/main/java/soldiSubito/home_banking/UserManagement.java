@@ -168,10 +168,6 @@ public class UserManagement {
 
 	}
 
-	
-	public void identityId() {
-
-	}
 
 	public static void logout() {
 

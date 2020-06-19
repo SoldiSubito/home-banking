@@ -32,13 +32,6 @@ public class User {
 	//ToRegister
 	@JsonbCreator
 
-	public User(@JsonbProperty("living_place") String livingPlace, @JsonbProperty("email") String eMail,
-			@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("id_user") Integer id_user) {
-		this.livingPlace = livingPlace;
-		this.eMail = eMail;
-		this.phoneNumber = phoneNumber;
-		this.id = id_user;
-	}
 
 	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") String dateOfBirth, @JsonbProperty("gender") Gender gender,@JsonbProperty("birth_place") String birthPlace, @JsonbProperty("living_place") String livingPlace,
 			@JsonbProperty("cf") String cf,@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("email") String eMail, @JsonbProperty("identityId") String identityId, @JsonbProperty("password") String password) throws ParseException {
@@ -56,6 +49,15 @@ public class User {
 		this.identityId = identityId;
 		this.gender = gender;
 		
+	}
+	
+
+	public User(@JsonbProperty("living_place") String livingPlace, @JsonbProperty("email") String eMail,
+			@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("id_user") Integer id_user) {
+		this.livingPlace = livingPlace;
+		this.eMail = eMail;
+		this.phoneNumber = phoneNumber;
+		this.id = id_user;
 	}
 	
 	public User(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") Date dateOfBirth, @JsonbProperty("token") String token, @JsonbProperty("cf") String cf) {
