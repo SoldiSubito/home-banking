@@ -8,8 +8,8 @@ public class Pagamento {
 	private double soldi;
 	
 	@JsonbCreator
-	public Pagamento(@JsonbProperty("ibanPagante") String ibanPagante,
-			@JsonbProperty("ibanRicevente") String ibanRicevente, @JsonbProperty("soldi") double soldi) {
+	public Pagamento(@JsonbProperty("ibanP") String ibanPagante,
+			@JsonbProperty("ibanR") String ibanRicevente, @JsonbProperty("amount") double soldi) {
 		this.ibanPagante = ibanPagante;
 		this.ibanRicevente = ibanRicevente;
 		this.soldi = soldi;
