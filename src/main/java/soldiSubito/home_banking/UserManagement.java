@@ -11,15 +11,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.json.bind.JsonbBuilder;
 import javax.json.bind.JsonbConfig;
+import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -216,23 +223,73 @@ public class UserManagement {
 		return generatedKey;
 	}
 
-	public static void deleteUserById(int id) {
+	@Path("/delete_user")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response deleteUserById(@QueryParam("id") int id) {
 		// myQuery non funziona
-		String myQuery = "delete from generics where id = (select contact from user where user.id = " + id + ");";
-		String myQuery2 = "delete from user where user.id = " + id;
+		String myQuery = "DELETE FROM generics WHERE id = (SELECT contact FROM user WHERE id = ?);";
+		String myQuery2 = "DELETE FROM user WHERE id = ?";
 		try (Connection myConnection = DBConnection.connect();
 				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
 				PreparedStatement preparedStatement2 = myConnection.prepareStatement(myQuery2);) {
-			preparedStatement.execute();
-			preparedStatement2.execute();
-			System.out.println("Deleted User " + id + " successfully");
+			preparedStatement.setInt(1,id);
+			preparedStatement2.setInt(1,id);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			ResultSet rs2 = preparedStatement2.executeQuery();
+			//System.out.println("Deleted User " + id + " successfully");
+			return Response.ok("User deleted").build();
 		} catch (SQLException e) {
 			System.out.println("SQLException: " + e.getMessage());
 			System.out.println("VendorError: " + e.getErrorCode());
 			e.printStackTrace();
+			return Response.status(406,new ErrorFounded(406,"User deleted").toJson()).build();
 		}
 
 	}
+	
+	
+	
+	@Path("/find_users")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response findUsers() throws ParseException {
+		// myQuery non funziona
+		String myQuery = "SELECT * FROM user,generics WHERE user.contact = generics.id";
+		List<User> allUsers = new ArrayList<>();
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery)) {
+			ResultSet rs = preparedStatement.executeQuery();
+
+			while (rs.next()) {
+
+		// String name, String surname, Date dateOfBirth, String token, String cf
+				allUsers.add(new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getString("BIRTH_DATE"),
+						Gender.valueOf(rs.getString("GENDER")),rs.getString("BIRTH_PLACE"),rs.getString("LIVING_PLACE"),
+						rs.getString("FISCAL_CODE"),rs.getString("PHONE_NUMBER"),
+						rs.getString("EMAIL")));
+			}
+			
+		}catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("VendorError: " + e.getErrorCode());
+			e.printStackTrace();
+			return Response.status(406,new ErrorFounded(406,"User deleted").toJson()).build();
+		}
+		String all = "";
+		
+		for(User u: allUsers) {
+			all += u.toJson() + "\n";
+		}
+		
+		return Response.ok(all).build();
+
+	}
+
+	
+	
+	
 
 	private static void saveUser(String[] data, Date dateOfBirth) {
 		if (Integer.parseInt(data[4]) == -1)
