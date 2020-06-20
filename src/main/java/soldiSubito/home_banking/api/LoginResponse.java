@@ -150,6 +150,7 @@ public class LoginResponse {
 		result = prime * result + ((token == null) ? 0 : token.hashCode());
 		return result;
 	}
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -192,7 +193,6 @@ public class LoginResponse {
 	}
 	
 	/*Domanda segreta (nome del tuo migliore amico)*/
-	
 	
 	
 	public String toJson() {

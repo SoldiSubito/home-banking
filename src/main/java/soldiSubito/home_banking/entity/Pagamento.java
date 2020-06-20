@@ -3,6 +3,7 @@ package soldiSubito.home_banking.entity;
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
 
+import soldiSubito.home_banking.api.PagamentoApi;
 import soldiSubito.home_banking.api.UserApi;
 
 public class Pagamento {

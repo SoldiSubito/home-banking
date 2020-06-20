@@ -21,6 +21,7 @@ import org.bouncycastle.util.encoders.Hex;
 
 import soldiSubito.home_banking.DBConnection;
 import soldiSubito.home_banking.Gender;
+import soldiSubito.home_banking.api.EditUserApi;
 import soldiSubito.home_banking.api.UserApi;
 import soldiSubito.home_banking.entity.ErrorFounded;
 import soldiSubito.home_banking.entity.User;
@@ -165,8 +166,26 @@ public class UserDAO {
 		return false;
 	}
 
-	public boolean editUser() {
-		return false;
+	public static boolean editUser(EditUserApi user) {
+
+		String myQuery = " UPDATE generics SET living_place=?, eMail = ?,phone_number=? WHERE id = ?";
+		try {
+			Connection myConnection = DBConnection.connect();
+			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
+			preparedStatement.setString(1, user.getLivingPlace());
+			preparedStatement.setString(2, user.geteMail());
+			preparedStatement.setString(3, user.getPhoneNumber());
+			preparedStatement.setInt(4, user.getId());
+
+			preparedStatement.executeUpdate();
+			return true;
+		} catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("VendorError: " + ex.getErrorCode());
+			return false;
+		}
+	
+
 	}
 
 }

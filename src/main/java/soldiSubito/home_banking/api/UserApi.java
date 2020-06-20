@@ -30,7 +30,7 @@ public class UserApi {
 	private String eMail;
 	private String identityId;
 	private String password;
-	private Integer id;
+	private int id;
 	
 	//ToRegister
 	@JsonbCreator
@@ -72,13 +72,7 @@ public class UserApi {
 	
 	
 
-	public UserApi(@JsonbProperty("living_place") String livingPlace, @JsonbProperty("email") String eMail,
-			@JsonbProperty("phone_number") String phoneNumber, @JsonbProperty("id_user") Integer id_user) {
-		this.livingPlace = livingPlace;
-		this.eMail = eMail;
-		this.phoneNumber = phoneNumber;
-		this.id = id_user;
-	}
+	
 	
 	public UserApi(@JsonbProperty("name") String name, @JsonbProperty("surname") String surname,@JsonbProperty("dateOfBirth") Date dateOfBirth, @JsonbProperty("token") String token, @JsonbProperty("cf") String cf) {
 		this.name = name;

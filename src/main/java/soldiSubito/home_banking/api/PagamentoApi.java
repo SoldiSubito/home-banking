@@ -10,7 +10,6 @@ import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 
 import soldiSubito.home_banking.entity.Pagamento;
-import soldiSubito.home_banking.entity.PagamentoApi;
 
 public class PagamentoApi {
 	private String ibanPagante, ibanRicevente;

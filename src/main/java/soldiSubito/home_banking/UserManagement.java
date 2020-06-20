@@ -12,7 +12,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,7 @@ import javax.ws.rs.core.Response;
 
 import org.bouncycastle.util.encoders.Hex;
 
+import soldiSubito.home_banking.api.EditUserApi;
 import soldiSubito.home_banking.api.FindUsersResponse;
 import soldiSubito.home_banking.api.LoginForm;
 import soldiSubito.home_banking.api.UserApi;
@@ -69,9 +72,8 @@ public class UserManagement {
 	public static Response register(UserApi userApi) {
 		
 		
-		// long age = ChronoUnit.YEARS.between(dateOfBirth, Date.valueOf(date));
-		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni
-		// per creare un account.");
+	//	 long age = ChronoUnit.YEARS.between(userApi.getDateOfBirth(), Date.valueOf(LocalDate.now()));
+		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anniper creare un account.");
 		if (userApi.getName().isBlank())
 			return Response.status(323, new ErrorFounded(406,"Il nome non può essere vuoto.").toJson()).build();
 		//dentro entity Error(status, message)
@@ -108,24 +110,15 @@ public class UserManagement {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public static Response editUserGenerics(UserApi user) {
+	public static Response editUserGenerics(EditUserApi userApi) {
 
-		String myQuery = " UPDATE generics SET living_place=?, eMail = ?,phone_number=? WHERE id = ?";
-		try {
-			Connection myConnection = DBConnection.connect();
-			PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
-			preparedStatement.setString(1, user.getLivingPlace());
-			preparedStatement.setString(2, user.geteMail());
-			preparedStatement.setString(3, user.getPhoneNumber());
-			preparedStatement.setInt(4, user.getId());
+		//User user = User.from(userApi);
+		
+		boolean edited = UserDAO.editUser(userApi);
+		if(edited) {
+			return Response.ok("The modify is valid.").build();
 
-			preparedStatement.executeUpdate();
-
-		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("VendorError: " + ex.getErrorCode());
-			return Response.status(404, new ErrorFounded(404, "The modify is not register!").toJson()).build();
-		}
+		}else
 		return Response.status(200, new ErrorFounded(200, "The modify is valid.").toJson()).build();
 
 	}
