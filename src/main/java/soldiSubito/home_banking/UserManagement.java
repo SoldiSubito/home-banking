@@ -32,8 +32,11 @@ import javax.ws.rs.core.Response;
 
 import org.bouncycastle.util.encoders.Hex;
 
+import soldiSubito.home_banking.api.FindUsersResponse;
+import soldiSubito.home_banking.api.LoginForm;
+import soldiSubito.home_banking.api.UserApi;
+import soldiSubito.home_banking.database.UserDAO;
 import soldiSubito.home_banking.entity.ErrorFounded;
-import soldiSubito.home_banking.entity.LoginForm;
 import soldiSubito.home_banking.entity.User;
 
 @Path("/user")
@@ -46,105 +49,56 @@ public class UserManagement {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response login(LoginForm login) {
-
-		// String cf ="NFFYMR95R26B354O";
-		// String password = "token";
-		// System.out.println(login.cf);
-		// System.out.println(login.pwd);
-
-		User user = null;
-		String myQuery = "SELECT * FROM user WHERE fiscal_code = ? AND password = ?";
-		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
-			preparedStatement.setString(1, login.getCf());
-			
-			String encoded = "";
-			try {
-				MessageDigest digest = MessageDigest.getInstance("SHA-256");
-				byte[] hash = digest.digest(
-				  login.getPwd().getBytes(StandardCharsets.UTF_8));
-				encoded = new String(Hex.encode(hash));
-				System.out.println(encoded);
-			}catch(Exception e) {
-				return Response.status(323, new ErrorFounded(406,e.toString()).toJson()).build();
-			}
 	
-			preparedStatement.setString(2, encoded);
-			ResultSet rs = preparedStatement.executeQuery();
-			if (rs.next()) {
-				StringBuilder sb = new StringBuilder();
-				sb.append(rs.getString("NAME") + "\n");
-				sb.append(rs.getString("SURNAME") + "\n");
-				sb.append(rs.getString("FISCAL_CODE") + "\n");
-				sb.append(rs.getString("PASSWORD") + "\n");
-				sb.append(rs.getDate("BIRTH_DATE") + "\n");
-				sb.append(rs.getInt("CONTACT") + "\n");
+		boolean logged = UserDAO.login(login.getCf(), login.getPwd());
+		
+		if(logged) {
+			//richiama da userDAO.getByusername  -->mappandola su loginresponse
+			return Response.ok("Utente valido").build();
 
-				// String name, String surname, Date dateOfBirth, String token, String cf
-				user = new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getDate("BIRTH_DATE"),
-						rs.getString("PASSWORD"), rs.getString("FISCAL_CODE"));
-			} else {
-				
-				return Response.status(403, new ErrorFounded(403,"Nome utente o password non corrispondono.").toJson()).build();
-			}
-
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return Response.ok(user.toJson()).build();
+		}else return Response.status(403,"Username o password non validi").build();
 
 	}
+	
+	
 
 	@Path("/register")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public static Response register(User user) {
+	public static Response register(UserApi userApi) {
+		
+		
 		// long age = ChronoUnit.YEARS.between(dateOfBirth, Date.valueOf(date));
 		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anni
 		// per creare un account.");
-		if (user.getName().isBlank())
+		if (userApi.getName().isBlank())
 			return Response.status(323, new ErrorFounded(406,"Il nome non può essere vuoto.").toJson()).build();
 		//dentro entity Error(status, message)
 			//throw new IllegalArgumentException("Il nome non può essere vuoto.");
-		if (user.getSurname().isBlank())
+		if (userApi.getSurname().isBlank())
 			return Response.status(323, new ErrorFounded(406,"Il cognome non può essere vuoto.").toJson()).build();
-		if (user.getBirthPlace().isBlank())
+		if (userApi.getBirthPlace().isBlank())
 			return Response.status(323, new ErrorFounded(406,"Il luogo di nascita non può essere vuoto.").toJson()).build();
-		if (user.getLivingPlace().isBlank())
+		if (userApi.getLivingPlace().isBlank())
 			return Response.status(323, new ErrorFounded(406,"La residenza non può essere vuota.").toJson()).build();
 		// if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La
 		// data di nascita non può essere nel futuro.");
-		if (!isValidFiscalCode(user.getCf()))
+		if (!isValidFiscalCode(userApi.getCf()))
 			return Response.status(323, new ErrorFounded(406,"Il codice fiscale non è corretto").toJson()).build();
-		if (!isValidNumeroFisso(user.getPhoneNumber().trim()) && !isValidNumeroMobile(user.getPhoneNumber().trim()))
+		if (!isValidNumeroFisso(userApi.getPhoneNumber().trim()) && !isValidNumeroMobile(userApi.getPhoneNumber().trim()))
 			return Response.status(323, new ErrorFounded(406,"Il numero di telefono non è corretto").toJson()).build();
-		if (!isValidMail(user.geteMail()))
+		if (!isValidMail(userApi.geteMail()))
 			return Response.status(323, new ErrorFounded(406,"L'email non è corretta").toJson()).build();
 		// forse controllo identity Id
 		
-		String encoded = "";
-		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] hash = digest.digest(
-			  user.getPassword().getBytes(StandardCharsets.UTF_8));
-			encoded = new String(Hex.encode(hash));
-			
-		}catch(Exception e) {
-			return Response.status(323, new ErrorFounded(406,e.toString()).toJson()).build();
-		}
 		
-		int generatedId = saveGenerics(user.getLivingPlace(), user.geteMail(), user.getPhoneNumber(),
-				user.getBirthPlace());
-		if (generatedId == -1) {
-			return Response.status(406, new ErrorFounded(406,"User still present in our Database ").toJson()).build();
-		}
 		// DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		// String strDate = dateFormat.format(dateOfBirth)
-		saveUser(new String[] { user.getName(), user.getSurname(), user.getCf(), encoded,
-				Integer.toString(generatedId), user.getGender().toString() }, user.getDateOfBirth());
+		
+		User user = User.from(userApi);
+		
+		UserDAO.saveUser(user);
 		// System.out.println("Registered User " + generatedId + " successfully");
 		return Response.ok("User registered successfully").build();
 	}
@@ -154,7 +108,7 @@ public class UserManagement {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public static Response editUserGenerics(User user) {
+	public static Response editUserGenerics(UserApi user) {
 
 		String myQuery = " UPDATE generics SET living_place=?, eMail = ?,phone_number=? WHERE id = ?";
 		try {
@@ -210,34 +164,17 @@ public class UserManagement {
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response findUsers() throws ParseException {
 		// myQuery non funziona
-		String myQuery = "SELECT * FROM user,generics WHERE user.contact = generics.id";
-		List<User> allUsers = new ArrayList<>();
-		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery)) {
-			ResultSet rs = preparedStatement.executeQuery();
-
-			while (rs.next()) {
-
-		// String name, String surname, Date dateOfBirth, String token, String cf
-				allUsers.add(new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getString("BIRTH_DATE"),
-						Gender.valueOf(rs.getString("GENDER")),rs.getString("BIRTH_PLACE"),rs.getString("LIVING_PLACE"),
-						rs.getString("FISCAL_CODE"),rs.getString("PHONE_NUMBER"),
-						rs.getString("EMAIL")));
-			}
-			
-		}catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("VendorError: " + e.getErrorCode());
-			e.printStackTrace();
-			return Response.status(406,new ErrorFounded(406,"User deleted").toJson()).build();
-		}
-		String all = "";
+		List<User> listUser = UserDAO.findUsers();
 		
-		for(User u: allUsers) {
-			all += u.toJson() + "\n";
+		List<UserApi> uApi = new ArrayList<>();
+		
+		for(User u: listUser) {
+			uApi.add(UserApi.from(u));
 		}
 		
-		return Response.ok(all).build();
+		FindUsersResponse fUser = new FindUsersResponse(uApi);
+		
+		return Response.ok(fUser.toJson()).build();
 
 	}
 
@@ -245,32 +182,7 @@ public class UserManagement {
 	
 	
 
-	private static void saveUser(String[] data, Date dateOfBirth) {
-		if (Integer.parseInt(data[4]) == -1)
-			return;
-		String myQuery = "INSERT INTO user(name, surname, fiscal_code, password, birth_date, contact, create_at, update_at,gender)"
-				+ " VALUES (?,?,?,?,?,?,?,?,?)";
-
-		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
-			preparedStatement.setString(1, data[0]);
-			preparedStatement.setString(2, data[1]);
-			preparedStatement.setString(3, data[2]);
-			preparedStatement.setString(4, data[3]);	
-			// Date date=Date.valueOf(data[4]);
-			preparedStatement.setDate(5, dateOfBirth);
-			preparedStatement.setInt(6, Integer.parseInt(data[4]));
-			preparedStatement.setTimestamp(7, Timestamp.valueOf(LocalDateTime.now()));
-			preparedStatement.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
-			
-			 preparedStatement.setString(9, data[5]);
-			 
-			preparedStatement.execute();
-		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-	}
+	
 
 	public static void logout() {
 
@@ -296,28 +208,6 @@ public class UserManagement {
 		return numero.matches(regex);
 	}
 
-	private static int saveGenerics(String lp, String em, String pn, String bp) {
-
-		String myQuery = "INSERT INTO generics(living_place, email, phone_number, birth_place) VALUES (?,?,?,?)";
-
-		int generatedKey = -1;
-		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery,
-						Statement.RETURN_GENERATED_KEYS);) {
-			preparedStatement.setString(1, lp);
-			preparedStatement.setString(2, em);
-			preparedStatement.setString(3, pn);
-			preparedStatement.setString(4, bp);
-			generatedKey = preparedStatement.executeUpdate();
-			ResultSet rs = preparedStatement.getGeneratedKeys();
-			rs.next();
-			generatedKey = rs.getInt(1);
-		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-		return generatedKey;
-	}
 	
 	
 	
