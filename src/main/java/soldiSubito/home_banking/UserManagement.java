@@ -32,8 +32,9 @@ import javax.ws.rs.core.Response;
 
 import org.bouncycastle.util.encoders.Hex;
 
-import soldiSubito.home_banking.apis.LoginForm;
 import soldiSubito.home_banking.entity.ErrorFounded;
+import soldiSubito.home_banking.entity.LoginForm;
+import soldiSubito.home_banking.entity.User;
 
 @Path("/user")
 public class UserManagement {

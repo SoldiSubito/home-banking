@@ -1,4 +1,4 @@
-package soldiSubito.home_banking.apis;
+package soldiSubito.home_banking.entity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -34,7 +34,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import soldiSubito.home_banking.DBConnection;
-import soldiSubito.home_banking.User;
 
 @Path("/userr")
 public class UserResource {

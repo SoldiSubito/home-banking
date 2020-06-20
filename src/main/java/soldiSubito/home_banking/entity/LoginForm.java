@@ -1,4 +1,4 @@
-package soldiSubito.home_banking.apis;
+package soldiSubito.home_banking.entity;
 
 
 import java.lang.reflect.Field;

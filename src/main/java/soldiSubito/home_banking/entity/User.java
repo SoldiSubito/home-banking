@@ -1,4 +1,4 @@
-package soldiSubito.home_banking;
+package soldiSubito.home_banking.entity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -13,6 +13,8 @@ import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbDateFormat;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
+
+import soldiSubito.home_banking.Gender;
 
 public class User {
 	private String name;
