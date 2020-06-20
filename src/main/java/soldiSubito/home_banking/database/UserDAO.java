@@ -28,6 +28,7 @@ import soldiSubito.home_banking.entity.User;
 
 public class UserDAO {
 
+	// RETRIEVE ALL USERS
 	public static List<User> findUsers() {
 
 		String myQuery = "SELECT * FROM user,generics WHERE user.contact = generics.id";
@@ -53,6 +54,7 @@ public class UserDAO {
 		return allUsers;
 	}
 
+	// SAVE USER GENERICS, USED IN REGISTER
 	public static int saveGenerics(String lp, String em, String pn, String bp) {
 
 		String myQuery = "INSERT INTO generics(living_place, email, phone_number, birth_place) VALUES (?,?,?,?)";
@@ -76,6 +78,7 @@ public class UserDAO {
 		return generatedKey;
 	}
 
+	// REGISTER
 	public static void saveUser(User user) {
 
 		int contactId = saveGenerics(user.getLivingPlace(), user.geteMail(), user.getPhoneNumber(),
@@ -120,6 +123,7 @@ public class UserDAO {
 		}
 	}
 
+	// LOGIN PROCEDURE, RETRIEVE USER INFORMATION
 	public static boolean login(String username, String password) {
 
 		User user = null;
@@ -162,10 +166,30 @@ public class UserDAO {
 		return false;
 	}
 
-	public boolean deleteUser() {
-		return false;
+	// DELETE USER FROM ID
+	public static boolean deleteUser(int id) {
+		String myQuery = "DELETE FROM generics WHERE id = (SELECT contact FROM user WHERE id = ?);";
+		String myQuery2 = "DELETE FROM user WHERE id = ?";
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
+				PreparedStatement preparedStatement2 = myConnection.prepareStatement(myQuery2);) {
+			preparedStatement.setInt(1, id);
+			preparedStatement2.setInt(1, id);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			ResultSet rs2 = preparedStatement2.executeQuery();
+			// System.out.println("Deleted User " + id + " successfully");
+			return true;
+		} catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("VendorError: " + e.getErrorCode());
+			e.printStackTrace();
+			return false;
+		}
+
 	}
 
+	// EDIT USER GENERICS
 	public static boolean editUser(EditUserApi user) {
 
 		String myQuery = " UPDATE generics SET living_place=?, eMail = ?,phone_number=? WHERE id = ?";
@@ -184,7 +208,6 @@ public class UserDAO {
 			System.out.println("VendorError: " + ex.getErrorCode());
 			return false;
 		}
-	
 
 	}
 

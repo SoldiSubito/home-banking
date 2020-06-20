@@ -45,137 +45,114 @@ import soldiSubito.home_banking.entity.User;
 @Path("/user")
 public class UserManagement {
 
-	
-	
 	@Path("/login")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response login(LoginForm login) {
-	
+
 		boolean logged = UserDAO.login(login.getCf(), login.getPwd());
-		
-		if(logged) {
-			//richiama da userDAO.getByusername  -->mappandola su loginresponse
+
+		if (logged) {
+			// richiama da userDAO.getByusername -->mappandola su loginresponse
 			return Response.ok("Utente valido").build();
 
-		}else return Response.status(403,"Username o password non validi").build();
+		} else
+			return Response.status(403, "Username o password non validi").build();
 
 	}
-	
-	
 
 	@Path("/register")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response register(UserApi userApi) {
-		
-		
-	//	 long age = ChronoUnit.YEARS.between(userApi.getDateOfBirth(), Date.valueOf(LocalDate.now()));
-		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18 anniper creare un account.");
+
+		// long age = ChronoUnit.YEARS.between(userApi.getDateOfBirth(),
+		// Date.valueOf(LocalDate.now()));
+		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18
+		// anniper creare un account.");
 		if (userApi.getName().isBlank())
-			return Response.status(323, new ErrorFounded(406,"Il nome non può essere vuoto.").toJson()).build();
-		//dentro entity Error(status, message)
-			//throw new IllegalArgumentException("Il nome non può essere vuoto.");
+			return Response.status(323, new ErrorFounded(406, "Il nome non può essere vuoto.").toJson()).build();
+		// dentro entity Error(status, message)
+		// throw new IllegalArgumentException("Il nome non può essere vuoto.");
 		if (userApi.getSurname().isBlank())
-			return Response.status(323, new ErrorFounded(406,"Il cognome non può essere vuoto.").toJson()).build();
+			return Response.status(323, new ErrorFounded(406, "Il cognome non può essere vuoto.").toJson()).build();
 		if (userApi.getBirthPlace().isBlank())
-			return Response.status(323, new ErrorFounded(406,"Il luogo di nascita non può essere vuoto.").toJson()).build();
+			return Response.status(323, new ErrorFounded(406, "Il luogo di nascita non può essere vuoto.").toJson())
+					.build();
 		if (userApi.getLivingPlace().isBlank())
-			return Response.status(323, new ErrorFounded(406,"La residenza non può essere vuota.").toJson()).build();
+			return Response.status(323, new ErrorFounded(406, "La residenza non può essere vuota.").toJson()).build();
 		// if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La
 		// data di nascita non può essere nel futuro.");
 		if (!isValidFiscalCode(userApi.getCf()))
-			return Response.status(323, new ErrorFounded(406,"Il codice fiscale non è corretto").toJson()).build();
-		if (!isValidNumeroFisso(userApi.getPhoneNumber().trim()) && !isValidNumeroMobile(userApi.getPhoneNumber().trim()))
-			return Response.status(323, new ErrorFounded(406,"Il numero di telefono non è corretto").toJson()).build();
+			return Response.status(323, new ErrorFounded(406, "Il codice fiscale non è corretto").toJson()).build();
+		if (!isValidNumeroFisso(userApi.getPhoneNumber().trim())
+				&& !isValidNumeroMobile(userApi.getPhoneNumber().trim()))
+			return Response.status(323, new ErrorFounded(406, "Il numero di telefono non è corretto").toJson()).build();
 		if (!isValidMail(userApi.geteMail()))
-			return Response.status(323, new ErrorFounded(406,"L'email non è corretta").toJson()).build();
+			return Response.status(323, new ErrorFounded(406, "L'email non è corretta").toJson()).build();
 		// forse controllo identity Id
-		
-		
+
 		// DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		// String strDate = dateFormat.format(dateOfBirth)
-		
+
 		User user = User.from(userApi);
-		
+
 		UserDAO.saveUser(user);
 		// System.out.println("Registered User " + generatedId + " successfully");
 		return Response.ok("User registered successfully").build();
 	}
 
-	
 	@Path("/edit_user")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response editUserGenerics(EditUserApi userApi) {
 
-		//User user = User.from(userApi);
-		
+		// User user = User.from(userApi);
+
 		boolean edited = UserDAO.editUser(userApi);
-		if(edited) {
+		if (edited) {
 			return Response.ok("The modify is valid.").build();
 
-		}else
-		return Response.status(200, new ErrorFounded(200, "The modify is valid.").toJson()).build();
+		} else
+			return Response.status(200, new ErrorFounded(200, "The modify is valid.").toJson()).build();
 
 	}
-
 
 	@Path("/delete_user")
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response deleteUserById(@QueryParam("id") int id) {
 		// myQuery non funziona
-		String myQuery = "DELETE FROM generics WHERE id = (SELECT contact FROM user WHERE id = ?);";
-		String myQuery2 = "DELETE FROM user WHERE id = ?";
-		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);
-				PreparedStatement preparedStatement2 = myConnection.prepareStatement(myQuery2);) {
-			preparedStatement.setInt(1,id);
-			preparedStatement2.setInt(1,id);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			ResultSet rs2 = preparedStatement2.executeQuery();
-			//System.out.println("Deleted User " + id + " successfully");
+		if (UserDAO.deleteUser(id)) {
 			return Response.ok("User deleted").build();
-		} catch (SQLException e) {
-			System.out.println("SQLException: " + e.getMessage());
-			System.out.println("VendorError: " + e.getErrorCode());
-			e.printStackTrace();
-			return Response.status(406,new ErrorFounded(406,"User deleted").toJson()).build();
-		}
+
+		} else
+			return Response.status(406, new ErrorFounded(406, "User deleted").toJson()).build();
 
 	}
-	
-	
-	
+
 	@Path("/find_users")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response findUsers() throws ParseException {
 		// myQuery non funziona
 		List<User> listUser = UserDAO.findUsers();
-		
+
 		List<UserApi> uApi = new ArrayList<>();
-		
-		for(User u: listUser) {
+
+		for (User u : listUser) {
 			uApi.add(UserApi.from(u));
 		}
-		
+
 		FindUsersResponse fUser = new FindUsersResponse(uApi);
-		
+
 		return Response.ok(fUser.toJson()).build();
 
 	}
-
-	
-	
-	
-
-	
 
 	public static void logout() {
 
@@ -200,12 +177,6 @@ public class UserManagement {
 		String regex = "^[0-9]{10}$";
 		return numero.matches(regex);
 	}
-
-	
-	
-	
-	
-	
 
 	public String toJson() {
 		JsonbConfig config = new JsonbConfig().withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
