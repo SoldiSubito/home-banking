@@ -177,53 +177,6 @@ public class UserManagement {
 	}
 
 
-	public static void logout() {
-
-	}
-
-	public static boolean isValidFiscalCode(String cf) {
-		String regex = "^[A-Za-z]{6}[0-9]{2}[A-Za-z]{1}[0-9]{2}[A-Za-z]{1}[0-9]{3}[A-Za-z]{1}$";
-		return cf.matches(regex);
-	}
-
-	private static boolean isValidMail(String email) {
-		String regex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
-		return email.matches(regex);
-	}
-
-	private static boolean isValidNumeroFisso(String numero) {
-		String regex = "^[0-9]{9}$";
-		return numero.matches(regex);
-	}
-
-	private static boolean isValidNumeroMobile(String numero) {
-		String regex = "^[0-9]{10}$";
-		return numero.matches(regex);
-	}
-
-	private static int saveGenerics(String lp, String em, String pn, String bp) {
-
-		String myQuery = "INSERT INTO generics(living_place, email, phone_number, birth_place) VALUES (?,?,?,?)";
-
-		int generatedKey = -1;
-		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery,
-						Statement.RETURN_GENERATED_KEYS);) {
-			preparedStatement.setString(1, lp);
-			preparedStatement.setString(2, em);
-			preparedStatement.setString(3, pn);
-			preparedStatement.setString(4, bp);
-			generatedKey = preparedStatement.executeUpdate();
-			ResultSet rs = preparedStatement.getGeneratedKeys();
-			rs.next();
-			generatedKey = rs.getInt(1);
-		} catch (SQLException ex) {
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-		return generatedKey;
-	}
-
 	@Path("/delete_user")
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
@@ -318,6 +271,58 @@ public class UserManagement {
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}
 	}
+
+	public static void logout() {
+
+	}
+
+	public static boolean isValidFiscalCode(String cf) {
+		String regex = "^[A-Za-z]{6}[0-9]{2}[A-Za-z]{1}[0-9]{2}[A-Za-z]{1}[0-9]{3}[A-Za-z]{1}$";
+		return cf.matches(regex);
+	}
+
+	private static boolean isValidMail(String email) {
+		String regex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
+		return email.matches(regex);
+	}
+
+	private static boolean isValidNumeroFisso(String numero) {
+		String regex = "^[0-9]{9}$";
+		return numero.matches(regex);
+	}
+
+	private static boolean isValidNumeroMobile(String numero) {
+		String regex = "^[0-9]{10}$";
+		return numero.matches(regex);
+	}
+
+	private static int saveGenerics(String lp, String em, String pn, String bp) {
+
+		String myQuery = "INSERT INTO generics(living_place, email, phone_number, birth_place) VALUES (?,?,?,?)";
+
+		int generatedKey = -1;
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery,
+						Statement.RETURN_GENERATED_KEYS);) {
+			preparedStatement.setString(1, lp);
+			preparedStatement.setString(2, em);
+			preparedStatement.setString(3, pn);
+			preparedStatement.setString(4, bp);
+			generatedKey = preparedStatement.executeUpdate();
+			ResultSet rs = preparedStatement.getGeneratedKeys();
+			rs.next();
+			generatedKey = rs.getInt(1);
+		} catch (SQLException ex) {
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+		return generatedKey;
+	}
+	
+	
+	
+	
+	
 
 	public String toJson() {
 		JsonbConfig config = new JsonbConfig().withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
