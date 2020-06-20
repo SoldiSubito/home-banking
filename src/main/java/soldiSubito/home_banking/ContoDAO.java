@@ -23,6 +23,9 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.glassfish.jersey.internal.util.Property;
 
+import soldiSubito.home_banking.entity.Conto;
+import soldiSubito.home_banking.entity.Pagamento;
+
 
 @Path("/conto")
 public class ContoDAO {

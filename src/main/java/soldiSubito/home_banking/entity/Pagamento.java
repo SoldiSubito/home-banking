@@ -1,4 +1,4 @@
-package soldiSubito.home_banking;
+package soldiSubito.home_banking.entity;
 
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;

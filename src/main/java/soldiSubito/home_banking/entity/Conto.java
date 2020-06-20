@@ -1,4 +1,4 @@
-package soldiSubito.home_banking;
+package soldiSubito.home_banking.entity;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -10,6 +10,9 @@ import javax.json.bind.JsonbConfig;
 import javax.json.bind.annotation.JsonbCreator;
 import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
+
+import soldiSubito.home_banking.CountType;
+import soldiSubito.home_banking.StatusConto;
 
 public class Conto{
 	private int id;
