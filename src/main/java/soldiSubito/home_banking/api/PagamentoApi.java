@@ -54,13 +54,9 @@ public class PagamentoApi {
 	
 	public static PagamentoApi from(Pagamento u) {
 
-		/*User user = new User(u.getName(), u.getSurname(), u.getDateOfBirth().toString(), u.getGender(),
-				u.getBirthPlace(), u.getLivingPlace(), u.getCf(), u.getPhoneNumber(), u.geteMail(), u.getIdentityId(),
-				u.getPassword());*/
-		
-		//PagamentoApi pagamentoApi = new Pagame..
+		PagamentoApi pagamentoApi = new PagamentoApi(u.getIbanPagante(),u.getIbanRicevente(),u.getSoldi());
 
-		return null;
+		return pagamentoApi;
 
 	}
 }

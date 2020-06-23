@@ -14,12 +14,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import soldiSubito.home_banking.api.ContoApi;
+import soldiSubito.home_banking.api.FindActivitiesResponse;
 import soldiSubito.home_banking.api.FindCountResponse;
 import soldiSubito.home_banking.api.FindUsersResponse;
 import soldiSubito.home_banking.api.PagamentoApi;
 import soldiSubito.home_banking.api.UserApi;
 import soldiSubito.home_banking.database.ContoDAO;
 import soldiSubito.home_banking.database.UserDAO;
+import soldiSubito.home_banking.entity.Activity;
 import soldiSubito.home_banking.entity.Conto;
 import soldiSubito.home_banking.entity.Pagamento;
 import soldiSubito.home_banking.entity.User;
@@ -135,4 +137,38 @@ public class ContoController {
 
 	}
 
+	@Path("/findActivityByContoID")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response findActivityContoID(@QueryParam("id_conto") int id_conto) {
+
+		List<Activity> activities = ContoDAO.findActivityByContoID(id_conto);
+
+		if (activities != null) {
+
+			FindActivitiesResponse act = new FindActivitiesResponse(activities);
+
+			return Response.ok(act.toJson()).build();
+		} else
+			return Response.status(400, "Non esiste un activity per questo conto").build();
+
+	}
+	
+	@Path("/findActivities")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response findActivites() {
+
+		List<Activity> activities = ContoDAO.findActivities();
+
+		if (activities != null) {
+
+			FindActivitiesResponse act = new FindActivitiesResponse(activities);
+
+			return Response.ok(act.toJson()).build();
+		} else
+			return Response.status(404, "Conto not found").build();
+	}
+
+	
 }

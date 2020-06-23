@@ -28,6 +28,7 @@ import org.glassfish.jersey.internal.util.Property;
 import soldiSubito.home_banking.CountType;
 import soldiSubito.home_banking.DBConnection;
 import soldiSubito.home_banking.StatusConto;
+import soldiSubito.home_banking.entity.Activity;
 import soldiSubito.home_banking.entity.Conto;
 import soldiSubito.home_banking.entity.Pagamento;
 
@@ -121,23 +122,8 @@ public class ContoDAO {
 		return null;
 	}
 
-	private static List<Conto> createFromRS(ResultSet rs) throws SQLException {
-		List<Conto> contiTrovati = new ArrayList<Conto>(0);
-		while (rs.next()) {
-			Conto contoTrovato = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"), rs.getString("IBAN"),
-					StatusConto.valueOf(rs.getString("STATUS")), CountType.getEnumValue(rs.getInt("COUNT_TYPE")));
-			contoTrovato.setId(rs.getInt("ID"));
-			System.out.println(contoTrovato.toString());
-			contiTrovati.add(contoTrovato);
-		}
-		return contiTrovati;
-	}
-
-	/*
-	 * PreparedStatement preparedStatement4 = myConnection.prepareStatement(
-	 * "INSERT INTO activity(id_conto,total,recipient,description, operation_type,create_at,status,currency) VALUES(?,?,?,?,?,?,?,?)"
-	 * );
-	 */
+	
+	
 	public static boolean bonifico(Pagamento pagamento) {
 
 		try (Connection myConnection = DBConnection.connect();
@@ -147,7 +133,7 @@ public class ContoDAO {
 						.prepareStatement("SELECT * FROM conto WHERE iban = ?");
 				PreparedStatement preparedStatement3 = myConnection
 						.prepareStatement("UPDATE conto SET total_amount = total_amount - ? WHERE iban = ?");) {
-			
+
 			preparedStatement1.setString(1, pagamento.getIbanPagante());
 			ResultSet conto1 = preparedStatement1.executeQuery();
 			preparedStatement2.setString(1, pagamento.getIbanRicevente());
@@ -165,22 +151,11 @@ public class ContoDAO {
 			preparedStatement3.setDouble(1, -pagamento.getSoldi());
 			preparedStatement3.setString(2, pagamento.getIbanRicevente());
 			preparedStatement3.execute();
-			/*boolean ok = ContoDAO.saveActvity(conto1.getInt("ID"), conto2.getInt("ID"), pagamento.getSoldi());
+			boolean ok = ContoDAO.saveActvity(conto1.getInt("ID"), conto2.getInt("ID"), pagamento.getSoldi());
 			if (ok)
 				return true;
 			else
 				return false;
-			*
-			 * preparedStatement4.setInt(1,conto1.getInt("ID")); //id_conto mandante
-			 * preparedStatement4.setDouble(2,pagamento.getSoldi()); //amount
-			 * preparedStatement4.setInt(3,conto2.getInt("ID")); //ricevente
-			 * preparedStatement4.setString(4,"Esempio di causale"); //descrizione
-			 * preparedStatement4.setString(5,"Bonifico"); //tipo operazione
-			 * preparedStatement4.setTimestamp(6,Timestamp.valueOf(LocalDateTime.now()));
-			 * //create preparedStatement4.setString(7,"Pending"); //status
-			 * preparedStatement4.setString(8,"EUR"); //currency
-			 * preparedStatement4.execute();
-			 */
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -210,6 +185,65 @@ public class ContoDAO {
 		}
 		return false;
 
+	}
+
+	public static List<Activity> findActivityByContoID(int id) {
+
+		List<Activity> activities = null;
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection
+						.prepareStatement("SELECT * FROM activity WHERE id_conto = ?");) {
+			preparedStatement.setInt(1, id);
+			ResultSet rs = preparedStatement.executeQuery();
+			activities = createActivityFromRS(rs);
+			return activities;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	
+	public static List<Activity> findActivities() {
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection
+						.prepareStatement("SELECT * FROM activity");) {
+			ResultSet rs = preparedStatement.executeQuery();
+			
+			
+			List<Activity> activities = createActivityFromRS(rs);
+			return activities;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private static List<Activity> createActivityFromRS(ResultSet rs) throws SQLException {
+		List<Activity> activities = new ArrayList<Activity>(0);
+		while (rs.next()) {
+			Activity a = new Activity(rs.getInt("ID_CONTO"), rs.getDouble("TOTAL"), rs.getString("RECIPIENT"),
+					rs.getString("DESCRIPTION"), rs.getString("OPERATION_TYPE"), rs.getDate("CREATE_AT"),
+					rs.getDate("VALIDATED_AT"), rs.getString("STATUS"), rs.getString("CURRENCY"));
+			a.setId(rs.getInt("ID"));
+			
+			
+			activities.add(a);
+		}
+		return activities;
+	}
+	
+	
+	private static List<Conto> createFromRS(ResultSet rs) throws SQLException {
+		List<Conto> contiTrovati = new ArrayList<Conto>(0);
+		while (rs.next()) {
+			Conto contoTrovato = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"), rs.getString("IBAN"),
+					StatusConto.valueOf(rs.getString("STATUS")), CountType.getEnumValue(rs.getInt("COUNT_TYPE")));
+			contoTrovato.setId(rs.getInt("ID"));
+			System.out.println(contoTrovato.toString());
+			contiTrovati.add(contoTrovato);
+		}
+		return contiTrovati;
 	}
 
 }

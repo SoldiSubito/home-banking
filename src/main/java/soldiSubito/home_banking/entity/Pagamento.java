@@ -32,13 +32,10 @@ public class Pagamento {
 	
 	public static Pagamento from(PagamentoApi u) {
 
-		/*User user = new User(u.getName(), u.getSurname(), u.getDateOfBirth().toString(), u.getGender(),
-				u.getBirthPlace(), u.getLivingPlace(), u.getCf(), u.getPhoneNumber(), u.geteMail(), u.getIdentityId(),
-				u.getPassword());*/
-		
-		//Pagamento pagamento = new Pagame..
+		Pagamento pagamento = new Pagamento(u.getIbanPagante(),u.getIbanRicevente(),u.getSoldi());
 
-		return null;
+
+		return pagamento;
 
 	}
 }
