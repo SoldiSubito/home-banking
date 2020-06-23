@@ -43,7 +43,7 @@ import soldiSubito.home_banking.entity.ErrorFounded;
 import soldiSubito.home_banking.entity.User;
 
 @Path("/user")
-public class UserManagement {
+public class UserController {
 
 	@Path("/login")
 	@POST
@@ -68,14 +68,14 @@ public class UserManagement {
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response register(UserApi userApi) {
 
-		// long age = ChronoUnit.YEARS.between(userApi.getDateOfBirth(),
-		// Date.valueOf(LocalDate.now()));
-		// if (age < 18) throw new IllegalArgumentException("Devi avere almeno 18
-		// anniper creare un account.");
+		long age = ChronoUnit.YEARS.between(userApi.getDateOfBirth().toLocalDate(), LocalDate.now());
+		if (age < 18)
+			return Response
+					.status(323, new ErrorFounded(406, "Devi avere almeno 18 anniper creare un account.").toJson())
+					.build();
+
 		if (userApi.getName().isBlank())
 			return Response.status(323, new ErrorFounded(406, "Il nome non può essere vuoto.").toJson()).build();
-		// dentro entity Error(status, message)
-		// throw new IllegalArgumentException("Il nome non può essere vuoto.");
 		if (userApi.getSurname().isBlank())
 			return Response.status(323, new ErrorFounded(406, "Il cognome non può essere vuoto.").toJson()).build();
 		if (userApi.getBirthPlace().isBlank())
@@ -83,8 +83,7 @@ public class UserManagement {
 					.build();
 		if (userApi.getLivingPlace().isBlank())
 			return Response.status(323, new ErrorFounded(406, "La residenza non può essere vuota.").toJson()).build();
-		// if (LocalDate.now() < dateOfBirth) throw new IllegalArgumentException("La
-		// data di nascita non può essere nel futuro.");
+
 		if (!isValidFiscalCode(userApi.getCf()))
 			return Response.status(323, new ErrorFounded(406, "Il codice fiscale non è corretto").toJson()).build();
 		if (!isValidNumeroFisso(userApi.getPhoneNumber().trim())
@@ -92,15 +91,11 @@ public class UserManagement {
 			return Response.status(323, new ErrorFounded(406, "Il numero di telefono non è corretto").toJson()).build();
 		if (!isValidMail(userApi.geteMail()))
 			return Response.status(323, new ErrorFounded(406, "L'email non è corretta").toJson()).build();
-		// forse controllo identity Id
-
-		// DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-		// String strDate = dateFormat.format(dateOfBirth)
 
 		User user = User.from(userApi);
 
 		UserDAO.saveUser(user);
-		// System.out.println("Registered User " + generatedId + " successfully");
+
 		return Response.ok("User registered successfully").build();
 	}
 
@@ -125,8 +120,6 @@ public class UserManagement {
 	@DELETE
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response deleteUserById(@QueryParam("id") int id) {
-		// myQuery non funziona
-
 		if (UserDAO.deleteUser(id)) {
 			return Response.ok("User deleted").build();
 
@@ -135,11 +128,12 @@ public class UserManagement {
 
 	}
 
+	
+	
 	@Path("/find_users")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public static Response findUsers() throws ParseException {
-		// myQuery non funziona
 		List<User> listUser = UserDAO.findUsers();
 
 		List<UserApi> uApi = new ArrayList<>();
@@ -153,8 +147,6 @@ public class UserManagement {
 		return Response.ok(fUser.toJson()).build();
 
 	}
-
-
 
 	public static boolean isValidFiscalCode(String cf) {
 		String regex = "^[A-Za-z]{6}[0-9]{2}[A-Za-z]{1}[0-9]{2}[A-Za-z]{1}[0-9]{3}[A-Za-z]{1}$";
