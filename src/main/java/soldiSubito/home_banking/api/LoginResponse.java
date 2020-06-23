@@ -1,4 +1,4 @@
-package soldiSubito.home_banking.entity;
+package soldiSubito.home_banking.api;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -15,9 +15,11 @@ import javax.json.bind.annotation.JsonbProperty;
 import javax.json.bind.config.PropertyVisibilityStrategy;
 
 import soldiSubito.home_banking.Gender;
-import soldiSubito.home_banking.api.UserApi;
+import soldiSubito.home_banking.entity.User;
 
-public class User {
+
+//modellare la risposta del login
+public class LoginResponse {
 	private String name;
 	private String surname;
 	private Date dateOfBirth;
@@ -31,29 +33,13 @@ public class User {
 	private String identityId;
 	private String password;
 	private Integer id;
-
-	public User(String name, String surname, String dateOfBirth, Gender gender, String birthPlace, String livingPlace,
-			String cf, String phoneNumber, String eMail, String identityId, String password) {
-		this.name = name;
-		this.surname = surname;
-		Date date = Date.valueOf(dateOfBirth);
-		this.dateOfBirth = date;
-		this.password = password;
-		this.gender = gender;
-		this.birthPlace = birthPlace;
-		this.livingPlace = livingPlace;
-		this.cf = cf;
-		this.phoneNumber = phoneNumber;
-		this.eMail = eMail;
-		this.identityId = identityId;
-		this.gender = gender;
-
-	}
-
 	
-	public User() {
+	public LoginResponse(User user) {
+		this.name = user.getName();
+		
 	}
-
+	
+	
 	public Integer getId() {
 		return id;
 	}
@@ -61,7 +47,7 @@ public class User {
 	public void setId(Integer id) {
 		this.id = id;
 	}
-
+	
 	public String getPassword() {
 		return password;
 	}
@@ -125,23 +111,18 @@ public class User {
 	public String getName() {
 		return name;
 	}
-
 	public void setName(String name) {
 		this.name = name;
 	}
-
 	public String getSurname() {
 		return surname;
 	}
-
 	public void setSurname(String surname) {
 		this.surname = surname;
 	}
-
 	public Date getDateOfBirth() {
 		return dateOfBirth;
 	}
-
 //	public void setDateOfBirth(Date dateOfBirth) {
 //		
 //		this.dateOfBirth = dateOfBirth;
@@ -149,19 +130,15 @@ public class User {
 	public String getToken() {
 		return token;
 	}
-
 	public void setToken(String token) {
 		this.token = token;
 	}
-
 	public String getCf() {
 		return cf;
 	}
-
 	public void setCf(String cf) {
 		this.cf = cf;
 	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -173,7 +150,7 @@ public class User {
 		result = prime * result + ((token == null) ? 0 : token.hashCode());
 		return result;
 	}
-
+	/*
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -182,7 +159,7 @@ public class User {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		User other = (User) obj;
+		UserApi other = (UserApi) obj;
 		if (cf == null) {
 			if (other.cf != null)
 				return false;
@@ -210,19 +187,31 @@ public class User {
 			return false;
 		return true;
 	}
-
 	@Override
 	public String toString() {
 		return "User [name=" + name + ", surname=" + surname + ", dateOfBirth=" + dateOfBirth + ", cf=" + cf + "]";
 	}
-
-	public static User from(UserApi u) {
-
-		User user = new User(u.getName(), u.getSurname(), u.getDateOfBirth().toString(), u.getGender(),
-				u.getBirthPlace(), u.getLivingPlace(), u.getCf(), u.getPhoneNumber(), u.geteMail(), u.getIdentityId(),
-				u.getPassword());
-
-		return user;
-
+	
+	/*Domanda segreta (nome del tuo migliore amico)*/
+	
+	
+	public String toJson() {
+		JsonbConfig config = new JsonbConfig().withPropertyVisibilityStrategy(new PropertyVisibilityStrategy() {
+			
+			@Override
+			public boolean isVisible(Method arg0) {
+				return false;
+			}
+			
+			@Override
+			public boolean isVisible(Field arg0) {
+				return true;
+			}
+		});
+		return JsonbBuilder.newBuilder().withConfig(config).build().toJson(this);
 	}
+
+	
+	
+	
 }

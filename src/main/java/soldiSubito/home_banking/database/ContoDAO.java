@@ -1,4 +1,4 @@
-package soldiSubito.home_banking;
+package soldiSubito.home_banking.database;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -23,6 +23,9 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.glassfish.jersey.internal.util.Property;
 
+import soldiSubito.home_banking.CountType;
+import soldiSubito.home_banking.DBConnection;
+import soldiSubito.home_banking.StatusConto;
 import soldiSubito.home_banking.entity.Conto;
 import soldiSubito.home_banking.entity.Pagamento;
 
@@ -153,5 +156,16 @@ public class ContoDAO {
 			e.printStackTrace();
 		}
 		return Response.status(400).build();
+	}
+	
+	
+	
+	public static String bonifico2(Pagamento pagamento) {
+		
+		//roba DB
+		
+		
+		return null;
+		
 	}
 }
