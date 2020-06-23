@@ -289,7 +289,40 @@ public class UserManagement {
 	}
 
 	
-	
+	@Path("/find_userByID")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public static Response findById(@QueryParam("id") int id) {
+		User user = null;
+		String myQuery = "SELECT * FROM user, generics WHERE id = ? AND user.contact = generics.id ";
+		
+			try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery)) {		
+			preparedStatement.setInt(1,id);
+			
+			ResultSet rs = preparedStatement.executeQuery();
+		
+			while (rs.next()) {
+
+			// String name, String surname, Date dateOfBirth, String token, String cf
+					user.add( new User(rs.getString("NAME"), rs.getString("SURNAME"), rs.getString("BIRTH_DATE"),
+							Gender.valueOf(rs.getString("GENDER")),rs.getString("BIRTH_PLACE"),rs.getString("LIVING_PLACE"),
+							rs.getString("FISCAL_CODE"),rs.getString("PHONE_NUMBER"),
+							rs.getString("EMAIL")));
+				
+			
+				
+				
+			
+			System.out.println("The user is finded by id.");
+		}catch (SQLException e) {
+			System.out.println("SQLException: " + e.getMessage());
+			System.out.println("VendorError: " + e.getErrorCode());
+			e.printStackTrace();
+			return Response.status(404, new ErrorFounded(404, "The user is not find!").toJson()).build();
+		} return Response.ok("The user is finded by id.").build();
+
+	}
 	
 
 	private static void saveUser(String[] data, Date dateOfBirth) {
