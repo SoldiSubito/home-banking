@@ -9,10 +9,9 @@ import soldiSubito.home_banking.api.UserApi;
 public class Pagamento {
 	private String ibanPagante, ibanRicevente;
 	private double soldi;
-	
-	@JsonbCreator
-	public Pagamento(@JsonbProperty("ibanP") String ibanPagante,
-			@JsonbProperty("ibanR") String ibanRicevente, @JsonbProperty("amount") double soldi) {
+
+	public Pagamento(String ibanPagante,
+			String ibanRicevente, double soldi) {
 		this.ibanPagante = ibanPagante;
 		this.ibanRicevente = ibanRicevente;
 		this.soldi = soldi;

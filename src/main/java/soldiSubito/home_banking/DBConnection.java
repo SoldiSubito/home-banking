@@ -12,6 +12,7 @@ public class DBConnection {
 	ResultSet rs = null;
 
 	public static Connection connect() {
+		
 		Connection conn = null;
 		try {
 

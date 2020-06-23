@@ -5,7 +5,9 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,18 +31,12 @@ import soldiSubito.home_banking.StatusConto;
 import soldiSubito.home_banking.entity.Conto;
 import soldiSubito.home_banking.entity.Pagamento;
 
-
-@Path("/conto")
 public class ContoDAO {
 
-	@Path("/create")
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response save(Conto conto) {
-			String myQuery = "INSERT INTO conto(owner, total_amount, iban, status, count_type, created_at) VALUES (?,?,?,?,?,?)";
+	public static boolean saveCount(Conto conto) {
+		String myQuery = "INSERT INTO conto(owner, total_amount, iban, status, count_type, created_at) VALUES (?,?,?,?,?,?)";
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);){
+				PreparedStatement preparedStatement = myConnection.prepareStatement(myQuery);) {
 			preparedStatement.setString(1, conto.getOwner());
 			preparedStatement.setDouble(2, conto.getTotalAmount());
 			preparedStatement.setString(3, conto.getIban());
@@ -48,77 +44,88 @@ public class ContoDAO {
 			preparedStatement.setInt(5, conto.getCountType().getValue());
 			preparedStatement.setDate(6, Date.valueOf(LocalDate.now()));
 			preparedStatement.execute();
-			return Response.ok().build();
+			return true;
 		} catch (SQLException ex) {
 			System.out.println("SQLException: " + ex.getMessage());
 			System.out.println("VendorError: " + ex.getErrorCode());
 		}
-		return Response.status(400).build();
+		return false;
 	}
-	
-	@Path("/findByID")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response findById(@QueryParam("id") int id) {
+
+	public static Conto findById(int id) {
+		Conto conto = null;
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE id = ?");) {
+				PreparedStatement preparedStatement = myConnection
+						.prepareStatement("SELECT * FROM conto WHERE id = ?");) {
 			preparedStatement.setInt(1, id);
 			ResultSet rs = preparedStatement.executeQuery();
-			List<Conto> contiTrovati = createFromRS(rs);
-			if(contiTrovati.size() == 1 && contiTrovati.get(0) != null)
-				return Response.ok(contiTrovati.get(0).toJson()).build();
+			if (rs.next()) {
+
+				conto = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"), rs.getString("IBAN"),
+						StatusConto.valueOf(rs.getString("STATUS")), CountType.getEnumValue(rs.getInt("COUNT_TYPE")));
+				conto.setId(rs.getInt("ID"));
+			}
+			return conto;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return Response.status(400, "Non esiste un conto con questo id").build();
+		return null;
 	}
 
-	@Path("/findByOwner")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response findByOwner(@QueryParam("owner") int owner) {
+	public static List<Conto> findAll() {
+		Conto conto = null;
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE owner LIKE ?");) {
+				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto");) {
+
+			ResultSet rs = preparedStatement.executeQuery();
+			List<Conto> contiTrovati = createFromRS(rs);
+			return contiTrovati;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static List<Conto> findByOwner(int owner) {
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement = myConnection
+						.prepareStatement("SELECT * FROM conto WHERE owner LIKE ?");) {
 			preparedStatement.setString(1, "%*" + owner + "*%");
 			ResultSet rs = preparedStatement.executeQuery();
 			List<Conto> contiTrovati = createFromRS(rs);
-			if(contiTrovati.size()>=1){
-				String sumJSON = "" ;
-				for(Conto c :contiTrovati) {
-					sumJSON+=c.toJson();
-					}
-				return Response.ok(sumJSON).build();
-			}
+			return contiTrovati;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return Response.status(400, "Non esiste un conto con questo owner").build();
+		return null;
 	}
 
-	//Per path param usa:
-	//@Path("/findByIBAN/{iban}") e pathParam
-	@Path("/findByIBAN")
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response findByIban(@QueryParam("iban") String iban) {
+	public static Conto findByIban(String iban) {
+
+		Conto conto = null;
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");) {
+				PreparedStatement preparedStatement = myConnection
+						.prepareStatement("SELECT * FROM conto WHERE iban = ?");) {
 			preparedStatement.setString(1, iban);
 			ResultSet rs = preparedStatement.executeQuery();
-			List<Conto> contiTrovati = createFromRS(rs);
-			if(contiTrovati.size() == 1 && contiTrovati.get(0) != null)
-				return Response.ok(contiTrovati.get(0).toJson()).build();
+			if (rs.next()) {
+
+				conto = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"), rs.getString("IBAN"),
+						StatusConto.valueOf(rs.getString("STATUS")), CountType.getEnumValue(rs.getInt("COUNT_TYPE")));
+				conto.setId(rs.getInt("ID"));
+			}
+			return conto;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return Response.status(400, "Non esiste un account con questo iban").build();
+		return null;
 	}
 
 	private static List<Conto> createFromRS(ResultSet rs) throws SQLException {
 		List<Conto> contiTrovati = new ArrayList<Conto>(0);
-		while(rs.next()) {
-			Conto contoTrovato = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"),
-					rs.getString("IBAN"), StatusConto.valueOf(rs.getString("STATUS")), CountType.getEnumValue(rs.getInt("COUNT_TYPE")));
+		while (rs.next()) {
+			Conto contoTrovato = new Conto(rs.getString("OWNER"), rs.getDouble("TOTAL_AMOUNT"), rs.getString("IBAN"),
+					StatusConto.valueOf(rs.getString("STATUS")), CountType.getEnumValue(rs.getInt("COUNT_TYPE")));
 			contoTrovato.setId(rs.getInt("ID"));
 			System.out.println(contoTrovato.toString());
 			contiTrovati.add(contoTrovato);
@@ -126,24 +133,31 @@ public class ContoDAO {
 		return contiTrovati;
 	}
 
-	@Path("/bonifico")
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	public static Response bonifico(Pagamento pagamento) {
-		if(pagamento.getSoldi() <= 0) throw new IllegalArgumentException("Il bonifico non può essere inferiore od uguale a 0€");
-		if(pagamento.getIbanPagante().contentEquals(pagamento.getIbanRicevente())) return Response.status(400, "I due iban coincidono").build();
+	/*
+	 * PreparedStatement preparedStatement4 = myConnection.prepareStatement(
+	 * "INSERT INTO activity(id_conto,total,recipient,description, operation_type,create_at,status,currency) VALUES(?,?,?,?,?,?,?,?)"
+	 * );
+	 */
+	public static boolean bonifico(Pagamento pagamento) {
+
 		try (Connection myConnection = DBConnection.connect();
-				PreparedStatement preparedStatement1 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");
-				PreparedStatement preparedStatement2 = myConnection.prepareStatement("SELECT * FROM conto WHERE iban = ?");
-				PreparedStatement preparedStatement3 = myConnection.prepareStatement("UPDATE conto SET total_amount = total_amount - ? WHERE iban = ?");) {
+				PreparedStatement preparedStatement1 = myConnection
+						.prepareStatement("SELECT * FROM conto WHERE iban = ?");
+				PreparedStatement preparedStatement2 = myConnection
+						.prepareStatement("SELECT * FROM conto WHERE iban = ?");
+				PreparedStatement preparedStatement3 = myConnection
+						.prepareStatement("UPDATE conto SET total_amount = total_amount - ? WHERE iban = ?");) {
+			
 			preparedStatement1.setString(1, pagamento.getIbanPagante());
 			ResultSet conto1 = preparedStatement1.executeQuery();
 			preparedStatement2.setString(1, pagamento.getIbanRicevente());
 			ResultSet conto2 = preparedStatement2.executeQuery();
-			if (!conto1.next()) throw new IllegalArgumentException("L'IBAN del mandante non è corretto");
-			if (!conto2.next()) throw new IllegalArgumentException("L'IBAN del ricevente non è corretto");
-			if (conto1.getDouble("TOTAL_AMOUNT") < pagamento.getSoldi()) throw new IllegalArgumentException("Non ci sono abbastanza soldi sul conto per questa operazione");
+			if (!conto1.next())
+				Response.status(400, "L'IBAN del mandante non è corretto").build();
+			if (!conto2.next())
+				Response.status(400, "L'IBAN del ricevente non è corretto").build();
+			if (conto1.getDouble("TOTAL_AMOUNT") < pagamento.getSoldi())
+				Response.status(400, "Non ci sono abbastanza soldi sul conto per questa operazione").build();
 			preparedStatement3.setDouble(1, pagamento.getSoldi());
 			preparedStatement3.setString(2, pagamento.getIbanPagante());
 			preparedStatement3.execute();
@@ -151,21 +165,51 @@ public class ContoDAO {
 			preparedStatement3.setDouble(1, -pagamento.getSoldi());
 			preparedStatement3.setString(2, pagamento.getIbanRicevente());
 			preparedStatement3.execute();
-			return Response.ok("Il bonifico è andato a buon fine").build();
-		}catch (Exception e) {
+			/*boolean ok = ContoDAO.saveActvity(conto1.getInt("ID"), conto2.getInt("ID"), pagamento.getSoldi());
+			if (ok)
+				return true;
+			else
+				return false;
+			*
+			 * preparedStatement4.setInt(1,conto1.getInt("ID")); //id_conto mandante
+			 * preparedStatement4.setDouble(2,pagamento.getSoldi()); //amount
+			 * preparedStatement4.setInt(3,conto2.getInt("ID")); //ricevente
+			 * preparedStatement4.setString(4,"Esempio di causale"); //descrizione
+			 * preparedStatement4.setString(5,"Bonifico"); //tipo operazione
+			 * preparedStatement4.setTimestamp(6,Timestamp.valueOf(LocalDateTime.now()));
+			 * //create preparedStatement4.setString(7,"Pending"); //status
+			 * preparedStatement4.setString(8,"EUR"); //currency
+			 * preparedStatement4.execute();
+			 */
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return Response.status(400).build();
+		return false;
 	}
-	
-	
-	
-	public static String bonifico2(Pagamento pagamento) {
-		
-		//roba DB
-		
-		
-		return null;
-		
+
+	public static boolean saveActvity(int id_p, int id_r, double amount) {
+
+		try (Connection myConnection = DBConnection.connect();
+				PreparedStatement preparedStatement4 = myConnection.prepareStatement(
+						"INSERT INTO activity(id_conto,total,recipient,description, operation_type,create_at,status,currency) VALUES(?,?,?,?,?,?,?,?)");) {
+
+			preparedStatement4.setInt(1, id_p); // id_conto mandante
+			preparedStatement4.setDouble(2, amount); // amount
+			preparedStatement4.setInt(3, id_r); // ricevente
+			preparedStatement4.setString(4, "Esempio di causale"); // descrizione
+			preparedStatement4.setString(5, "Bonifico"); // tipo operazione
+			preparedStatement4.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now())); // create
+			preparedStatement4.setString(7, "Pending"); // status
+			preparedStatement4.setString(8, "EUR"); // currency
+			preparedStatement4.execute();
+
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+
 	}
+
 }
